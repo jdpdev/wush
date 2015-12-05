@@ -44,6 +44,11 @@ router.get('/users', function (req, res) {
   users.list(con, res);
 });
 
+router.get('/users/create', function (req, res) {
+  var users = new Users();
+  users.create(con, req, res);
+});
+
 /*
 var messages = [];
 var sockets = [];
