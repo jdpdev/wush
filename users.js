@@ -16,4 +16,20 @@ Users.prototype.list = function(db, res) {
     });
 }
 
+Users.prototype.create = function(db, req, res) {
+    var passwordHash = require('password-hash');
+    var hashedPassword = passwordHash.generate(req.query.password);
+    
+    var query = "INSERT INTO users SET ?";
+    var inputs = {name: req.query.name, password: hashedPassword, email: req.query.email};
+    
+    var request = db.query(query, inputs, function(err, rows, fields) {
+        if (err) throw err;
+        
+        res.send("User " + req.query.name + " created");
+    });
+    
+    console.log(request.sql);
+}
+
 module.exports = Users;
