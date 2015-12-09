@@ -6,25 +6,57 @@
 var http = require('http');
 var path = require('path');
 var mysql = require("mysql");
-var Users = require("./users");
+var users = require("./users");
 
 var async = require('async');
 var socketio = require('socket.io');
 var express = require('express');
-// First you need to create a connection to the db
-var con = mysql.createConnection({
+
+var Users = new users();
+
+// Set up database connection
+var db = mysql.createConnection({
   host: "localhost",
   user: "dupersaurus",
   password: "",
   database: "c9"
 });
 
-con.connect(function(err){
+db.connect(function(err){
   if(err){
     console.log(err.stack);
     return;
   }
   console.log('Connection established');
+});
+
+// set up passport
+var passport = require('passport')
+  , LocalStrategy = require('passport-local').Strategy;
+  
+passport.use(new LocalStrategy(
+  function(username, password, done) {
+    Users.findByName(db, username, function (err, user) {
+      if (err) { return done(err); }
+      if (!user) {
+        return done(null, false);
+      }
+      if (!user.verifyPassword(password)) {
+        return done(null, false);
+      }
+      return done(null, user);
+    });
+  }
+));
+
+passport.serializeUser(function(user, done) {
+  done(null, user.id);
+});
+
+passport.deserializeUser(function(id, done) {
+  Users.findById(db, id, function(err, user) {
+    done(err, user);
+  });
 });
 
 //
@@ -33,21 +65,33 @@ con.connect(function(err){
 // Creates a new instance of SimpleServer with the following options:
 //  * `port` - The HTTP port to listen on. If `process.env.PORT` is set, _it overrides this value_.
 //
-var router = express();
-var server = http.createServer(router);
+var app = express();
+var server = http.createServer(app);
 var io = socketio.listen(server);
 
-router.use(express.static(path.resolve(__dirname, 'client')));
-
-router.get('/users', function (req, res) {
-  var users = new Users();
-  users.list(con, res);
+app.configure(function() {
+  app.use(express.static(path.resolve(__dirname, 'client')));
+  app.use(express.cookieParser());
+  app.use(express.bodyParser());
+  app.use(express.session({ secret: 'nograbass' }));
+  app.use(passport.initialize());
+  app.use(passport.session());
+  app.use(app.router);
 });
 
-router.get('/users/create', function (req, res) {
-  var users = new Users();
-  users.create(con, req, res);
+app.get('/users', function (req, res) {
+  Users.list(db, res);
 });
+
+app.get('/users/create', function (req, res) {
+  Users.create(db, req, res);
+});
+
+app.post('/login',
+  passport.authenticate('local', { successRedirect: '/',
+                                   failureRedirect: '/login.html?error=Login failed',
+                                   failureFlash: true })
+);
 
 /*
 var messages = [];

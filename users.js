@@ -28,8 +28,52 @@ Users.prototype.create = function(db, req, res) {
         
         res.send("User " + req.query.name + " created");
     });
+}
+
+// verify(err, user)
+Users.prototype.findByName = function(db, name, verify) {
+    var query = "SELECT * FROM users WHERE ?";
+    var inputs = {name: name};
     
-    console.log(request.sql);
+    var request = db.query(query, inputs, function(err, rows, fields) {
+        if (err || rows.length != 1) {
+            verify(err, null);   
+        }
+        
+        /* global User */
+        var user = new Users();
+        user.populate(rows[0]);
+        verify(err, user);
+    });
+}
+
+Users.prototype.findById = function(db, id, verify) {
+    var query = "SELECT * FROM users WHERE ?";
+    var inputs = {id: id};
+    
+    var request = db.query(query, inputs, function(err, rows, fields) {
+        if (err || rows.length != 1) {
+            verify(err, null);   
+        }
+        
+        /* global User */
+        var user = new Users();
+        user.populate(rows[0]);
+        verify(err, user);
+    });
+}
+
+// Returns if a password matches a hased password
+Users.prototype.verifyPassword = function(password) {
+    var passwordHash = require('password-hash');
+    return passwordHash.verify(password, this.password);
+}
+
+Users.prototype.populate = function(row) {
+    this.id = row.id;
+    this.name = row.name;
+    this.email = row.email;
+    this.password = row.password;
 }
 
 module.exports = Users;
