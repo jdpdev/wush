@@ -18,7 +18,7 @@ var Users = new users();
 var db = mysql.createConnection({
   host: "localhost",
   user: "dupersaurus",
-  password: "",
+  password: "vfr4esz.",
   database: "c9"
 });
 
@@ -85,6 +85,23 @@ app.get('/users', function (req, res) {
 
 app.get('/users/create', function (req, res) {
   Users.create(db, req, res);
+});
+
+function ensureAuthenticated(req, res, next) {
+  if (req.isAuthenticated())
+    return next();
+  else
+    return res.json({ success: false, error: "Not authenticated" }); 
+}
+
+app.get("/users/info", ensureAuthenticated, function(req, res) {
+  console.log("/users/info (" + req.isAuthenticated() + ")");
+  
+  if (req.isAuthenticated()) {
+    return res.json({ success: true, id: req.user.id, name: req.user.name }); 
+  } else {
+    return res.json({ success: false, error: "Not authenticated" }); 
+  }
 });
 
 app.post('/login',
