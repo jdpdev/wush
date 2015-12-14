@@ -79,6 +79,16 @@ app.configure(function() {
   app.use(app.router);
 });
 
+app.get("/", function(req, res) {
+  console.log("get root (" + req.isAuthenticated() + ")");
+  
+  if (req.isAuthenticated()) {
+    res.sendfile("client/profile.html");
+  } else {
+    res.sendfile("client/login.html");
+  }
+});
+
 app.get('/users', function (req, res) {
   Users.list(db, res);
 });
@@ -98,7 +108,13 @@ app.get("/users/info", ensureAuthenticated, function(req, res) {
   console.log("/users/info (" + req.isAuthenticated() + ")");
   
   if (req.isAuthenticated()) {
-    return res.json({ success: true, id: req.user.id, name: req.user.name }); 
+    req.user.getProfileDetails(db, function(err, info) {
+      if (err) {
+        return res.json({ success: false, error: "Cannot load profile" });
+      } else {
+        return res.json({ success: true, id: req.user.id, name: req.user.name, characters: info });
+      }
+    }); 
   } else {
     return res.json({ success: false, error: "Not authenticated" }); 
   }

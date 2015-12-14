@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>WUSHing</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/bootstrap-responsive.min.css">
+    <style>
+      body {
+        padding-top: 60px;
+      }
+      
+      .character {
+        text-align: center;
+        cursor: pointer;
+      }
+      
+      .character h5 {
+        padding: 2px;
+        border-radius: 5px;
+        color: white;
+      }
+      
+      .room {
+        text-align: center;
+      }
+    </style>
+
+  </head>
+  <body ng-app="wushDashboard">
+    <div class="container" ng-controller="DashboardController as controller">
+      
+      <div class="page-header">
+        <h1>Dashboard <h3>{{controller.username}}</h3></h1>
+      </div>
+      
+      <div class="row">
+        
+        <!-- Characters -->
+        <div class="col-xs-12 col-sm-4 col-md-3">
+          <div class="character"
+              ng-repeat="char in controller.characters track by char.id"
+              ng-click="jumpToRoom(char.room)">
+            
+            <h5 style="background-color: #{{char.worldColor}}">{{char.name}}</h5>
+            
+            <div class="room">
+              {{char.roomName}}<br/>
+              <b>{{char.worldName}}</b>
+            </div>
+          </div>
+        </div>
+        
+        <!-- New poses -->
+        <div class="col-xs-12 col-sm-8 col-md-9">
+          
+        </div>
+      </div>
+      
+      </div>
+    </div>
+    
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.2/angular.min.js"></script>
+    <script src="/js/dashboard.js"></script>
+  </body>
+</html>
