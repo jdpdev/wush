@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>WUSHing</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/bootstrap-responsive.min.css">
+    <style>
+      body {
+        padding-top: 60px;
+      }
+      
+    </style>
+
+  </head>
+  <body ng-app="wushRoom">
+    <div class="container" ng-controller="RoomController as controller">
+      
+      <div class="page-header">
+        <h3>{{controller.name}}</h3>
+      </div>
+      
+      <div class="row">
+        
+        <!-- Poses -->
+        <div class="col-xs-12 col-sm-8 col-md-9">
+          <div ng-repeat="pose in controller.poses track by pose.id">
+            <h5>{{pose.name}} <small>{{char.timestring}}</small></h5>
+            <p>
+              {{pose.text}}
+            </p>
+          </div>
+        </div>
+        
+        <!-- Characters -->
+        <div class="col-xs-12 col-sm-4 col-md-3">
+          <div ng-repeat="char in controller.characters track by char.id">
+            <h5>{{char.name}}</h5>
+          </div>
+        </div>
+      </div>
+      
+      </div>
+    </div>
+    
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.2/angular.min.js"></script>
+    <script src="/js/room.js"></script>
+  </body>
+</html>

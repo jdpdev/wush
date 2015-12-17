@@ -74,6 +74,45 @@ Users.prototype.populate = function(row) {
     this.name = row.name;
     this.email = row.email;
     this.password = row.password;
+    this.characters = [];
+}
+
+Users.prototype.getProfileDetails = function(db, verify) {
+    var query = "SELECT c.id, c.name cname, l.entertime, r.id rid, r.name rname, r.description, w.id wid, w.name wname, w.color " +
+                    "from characters c " +
+                    "left join locations l " +
+                    "	on l.character = c.id " +
+                    "left join room r " +
+                    "	on r.id = l.room " +
+                    "left join world w " +
+                    "	on w.id = r.world " +
+                    "WHERE ?";
+    var inputs = {"c.owner": this.id};
+    
+    var request = db.query(query, inputs, function(err, rows, fields) {
+        if (err) {
+            verify(err, null);   
+        }
+        
+        if (this.characters == undefined) {
+            this.characters = [];
+        }
+        
+        for (var i in rows) {
+            this.characters.push({
+                    id: rows[i].id,
+                    name: rows[i].cname,
+                    room: rows[i].rid,
+                    roomName: rows[i].rname,
+                    roomDesc: rows[i].rdescription,
+                    world: rows[i].wid,
+                    worldName: rows[i].wname,
+                    worldColor: rows[i].color
+                });
+        }
+        
+        verify(err, this.characters);
+    });
 }
 
 module.exports = Users;

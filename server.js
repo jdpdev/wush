@@ -14,21 +14,28 @@ var express = require('express');
 
 var Users = new users();
 
+var RoomManagerConstructor = require("./roomManager");
+var RoomManager = new RoomManagerConstructor();
+
+var WorldManagerConstructor = require("./worldManager");
+var WorldManager = new WorldManagerConstructor();
+
 // Set up database connection
-var db = mysql.createConnection({
+var db = mysql.createPool({
+  connectionLimit: 20,
   host: "localhost",
   user: "dupersaurus",
   password: "vfr4esz.",
   database: "c9"
 });
 
-db.connect(function(err){
+/*db.connect(function(err){
   if(err){
     console.log(err.stack);
     return;
   }
   console.log('Connection established');
-});
+});*/
 
 // set up passport
 var passport = require('passport')
@@ -118,6 +125,10 @@ app.get("/users/info", ensureAuthenticated, function(req, res) {
   } else {
     return res.json({ success: false, error: "Not authenticated" }); 
   }
+});
+
+app.get("/room/info", ensureAuthenticated, function(req, res) {
+  RoomManager.sendRoomInfo(req, res, db);
 });
 
 app.post('/login',
