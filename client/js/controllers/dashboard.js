@@ -1,5 +1,5 @@
 /* global wushApp */
-wushApp.controller("profileController", function($scope, $http) {
+wushApp.controller("profileController", function($scope, $http, $location) {
     var self = this;
     
     this.username = "";
@@ -19,8 +19,15 @@ wushApp.controller("profileController", function($scope, $http) {
                 console.log("success");  
                 self.username = response.data.name;
                 self.characters = response.data.characters;
+                
+                /* global app */
+                wushApp.setUserInfo({name: response.data.name, id: response.data.id});
             } else {
                 console.log("data error");
+                
+                if (!response.data.authenticated) {
+                    $location.path("/login");
+                }
             }
         },
         
@@ -29,4 +36,8 @@ wushApp.controller("profileController", function($scope, $http) {
             console.log("server error");
         }
     )
+    
+    this.jumpToRoom = function(roomId) {
+        $location.path("/room/" + roomId);
+    }
 });

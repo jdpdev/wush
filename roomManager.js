@@ -1,6 +1,8 @@
 var Room = require("./room");
 var WorldManagerReq = require("./worldManager");
 var WorldManager = new WorldManagerReq();
+var PoseManager = require("./poseManager");
+PoseManager = new PoseManager();
 
 module.exports = RoomManager;
 
@@ -79,3 +81,46 @@ RoomManager.prototype.loadRoom = function(db, id) {
         });
     });
 }
+
+RoomManager.prototype.loadRoomMembers = function(req, res, db) {
+    this.loadRoom(db, req.query.id)
+    .then(function(info) {
+        //res.json({success: true, authenticated: true, characters: info});
+        
+        info.room.getMembers(db)
+            .then(function(chars) {
+                res.json({success: true, authenticated: true, characters: chars});
+            })
+            .catch(function(error) {
+                res.json({success: false, authenticated: true, error: error});       
+            });
+    })
+    .catch(function(error) {
+        res.json({success: false, authenticated: true, error: error});
+    });
+};
+
+RoomManager.prototype.loadRoomPoses = function(req, res, db) {
+    
+    // Get poses since a date
+    if (req.query.timestamp != undefined) {
+        PoseManager.loadFromRoomSince(db, req.query.id, req.query.timestamp)
+        .then(function(poses) {
+            res.json({success: true, authenticated: true, poses: poses});
+        })
+        .catch(function(error) {
+            res.json({success: true, authenticated: true, error: error});
+        });   
+    }
+    
+    // Get the last X poses
+    else {
+        PoseManager.loadFromRoom(db, req.query.id, 10)
+        .then(function(poses) {
+            res.json({success: true, authenticated: true, poses: poses});
+        })
+        .catch(function(error) {
+            res.json({success: true, authenticated: true, error: error});
+        }); 
+    }
+};

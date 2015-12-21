@@ -31,22 +31,28 @@
             </div>
         
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="#"><i class="fa fa-home"></i> Profile</a></li>
-                <li><a href="#rooms"><i class="fa fa-street-view"></i> Characters</a></li>
-                <li><a href="#contact"><i class="fa fa-map-o"></i> Places</a></li>
+                <li><a href="#/"><i class="fa fa-home"></i> Profile</a></li>
+                <li><a href="#rooms/"><i class="fa fa-street-view"></i> Characters</a></li>
+                <li><a href="#contact/"><i class="fa fa-map-o"></i> Places</a></li>
             </ul>
         </div>
       </nav>
     </header>
     
     <!-- MAIN CONTENT AND INJECTED VIEWS -->
-    <div id="main">
-    
-      <div ng-view></div>
-    
+    <div id="content">
+			<div class="container">
+        <div id="main">
+        
+          <div ng-view></div>
+        
+        </div>
+      </div>
     </div>
     
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+    <script src="/js/lib/ui-bootstrap/ui-bootstrap-custom-tpls-0.14.3.min.js"></script>
+    
   </body>
 </html>

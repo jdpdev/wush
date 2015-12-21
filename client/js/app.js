@@ -1,5 +1,5 @@
 /* global angular */
-var wushApp = angular.module("wushApp", ["ngRoute"]);
+var wushApp = angular.module("wushApp", ["ngRoute", 'ui.bootstrap']);
 
 // configure our routes
 wushApp.config(function($routeProvider) {
@@ -30,8 +30,19 @@ wushApp.config(function($routeProvider) {
 
 // Main app controller
 wushApp.controller("wushController", function($scope) {
+    this.userInfo = null;
+    
     this.getContrastColor = function(hex) {
         return hexToLuminosity(hex) >= 0.5 ? "#000" : "#fff";
+    }
+    
+    // Sets the information of the current user
+    this.setUserInfo = function(user) {
+        this.userInfo = user;
+    }
+    
+    this.getUserInfo = function() {
+        return this.userInfo;
     }
 });
 

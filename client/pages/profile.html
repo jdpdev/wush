@@ -2,11 +2,14 @@
   .character {
     text-align: center;
     cursor: pointer;
+    margin-bottom: 10px;
   }
   
   .character h5 {
     padding: 2px;
-    border-radius: 5px;
+    padding-bottom: 5px;
+    margin: 0px;
+    margin-bottom: 5px;
     color: white;
   }
   
@@ -24,10 +27,11 @@
     <!-- Characters -->
     <div class="col-xs-12 col-sm-4 col-md-3">
       <div class="character"
+          style="border: 2px solid #{{char.worldColor}}; border-radius: 5px;";
           ng-repeat="char in profile.characters track by char.id"
-          ng-click="jumpToRoom(char.room)">
+          ng-click="profile.jumpToRoom(char.room)">
         
-        <h5 style="background-color: #{{char.worldColor}}">{{char.name}}</h5>
+        <h5 style="background-color: #{{char.worldColor}}; color: {{app.getContrastColor(char.worldColor)}}">{{char.name}}</h5>
         
         <div class="room">
           {{char.roomName}}<br/>

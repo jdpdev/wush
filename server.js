@@ -131,6 +131,14 @@ app.get("/api/room/info", ensureAuthenticated, function(req, res) {
   RoomManager.sendRoomInfo(req, res, db);
 });
 
+app.get("/api/room/members", ensureAuthenticated, function(req, res) {
+  RoomManager.loadRoomMembers(req, res, db);
+});
+
+app.get("/api/room/poses", ensureAuthenticated, function(req, res) {
+  RoomManager.loadRoomPoses(req, res, db);
+});
+
 app.post('/api/login',
   passport.authenticate('local', { successRedirect: '/',
                                    failureRedirect: '/login.html?error=Login failed',
