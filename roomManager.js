@@ -17,10 +17,10 @@ function RoomManager() {
 RoomManager.prototype.sendRoomInfo = function(req, res, db) {
     this.loadRoom(db, req.query.id)
     .then(function(info) {
-        res.json({success: true, room: info.room, world: info.world});
+        res.json({success: true, authenticated: true, room: info.room, world: info.world});
     })
     .catch(function(error) {
-        res.json({success: false, error: error});
+        res.json({success: false, authenticated: true, error: error});
     });
 }
 
@@ -35,7 +35,17 @@ RoomManager.prototype.loadRoom = function(db, id) {
     
     return new Promise(function(resolve, reject) {
         if (self.roomCache[id] != undefined) {
-            resolve(self.roomCache[id]);
+            //resolve({room: self.roomCache[id], world: });
+            var room = self.roomCache[id];
+            
+            WorldManager.loadWorld(db, room.worldId)
+            .then(function(world) {
+                resolve({room: room, world: world});  
+            })
+            .catch(function(error) {
+                resolve({room: room, error: error}); 
+            });
+            
             return;
         }    
         
@@ -63,7 +73,7 @@ RoomManager.prototype.loadRoom = function(db, id) {
                     resolve({room: room, world: world});  
                 })
                 .catch(function(error) {
-                    resolve(room, error); 
+                    resolve({room: room, error: error}); 
                 });
             }
         });

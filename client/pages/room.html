@@ -1,0 +1,38 @@
+<style>
+  body {
+    padding-top: 60px;
+  }
+  
+  .roomInfo {
+    border: 2px solid #f0f;
+    border-radius: 10px;
+  }
+  
+  .page-header h3 {
+      padding: 5px;
+  }
+</style>
+
+  <div class="page-header" style="background-color: #{{room.world.color}}; color: {{app.getContrastColor(room.world.color)}}">
+    <h3>{{room.info.name}}</h3>
+  </div>
+  
+  <div class="row">
+    
+    <!-- Poses -->
+    <div class="col-xs-12 col-sm-8 col-md-9">
+      <div ng-repeat="pose in room.poses track by pose.id">
+        <h5>{{pose.name}} <small>{{char.timestring}}</small></h5>
+        <p>
+          {{pose.text}}
+        </p>
+      </div>
+    </div>
+    
+    <!-- Characters -->
+    <div class="col-xs-12 col-sm-4 col-md-3 roomInfo">
+      <div ng-repeat="char in room.characters track by char.id">
+        <h5>{{char.name}}</h5>
+      </div>
+    </div>
+  </div>

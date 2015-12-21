@@ -1,0 +1,43 @@
+<style>
+  .character {
+    text-align: center;
+    cursor: pointer;
+  }
+  
+  .character h5 {
+    padding: 2px;
+    border-radius: 5px;
+    color: white;
+  }
+  
+  .room {
+    text-align: center;
+  }
+</style>
+
+<div class="page-header">
+    <h1>Dashboard <h3>{{profile.username}}</h3></h1>
+</div>
+
+<div class="row">
+
+    <!-- Characters -->
+    <div class="col-xs-12 col-sm-4 col-md-3">
+      <div class="character"
+          ng-repeat="char in profile.characters track by char.id"
+          ng-click="jumpToRoom(char.room)">
+        
+        <h5 style="background-color: #{{char.worldColor}}">{{char.name}}</h5>
+        
+        <div class="room">
+          {{char.roomName}}<br/>
+          <b>{{char.worldName}}</b>
+        </div>
+      </div>
+    </div>
+    
+    <!-- New poses -->
+    <div class="col-xs-12 col-sm-8 col-md-9">
+      
+    </div>
+</div>

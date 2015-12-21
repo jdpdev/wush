@@ -10,14 +10,20 @@
         padding-top: 60px;
       }
       
+      .container {
+        border: 2px solid #f0f;
+        border-radius: 10px;
+      }
     </style>
 
   </head>
   <body ng-app="wushRoom">
-    <div class="container" ng-controller="RoomController as controller">
+    <div class="container" 
+        style="border-color: {{controller.world.color}}"
+        ng-controller="RoomController as controller">
       
       <div class="page-header">
-        <h3>{{controller.name}}</h3>
+        <h3>{{controller.room.name}}</h3>
       </div>
       
       <div class="row">
@@ -46,7 +52,8 @@
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.2/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.2/angular.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.2/angular-route.js"></script>
     <script src="/js/room.js"></script>
   </body>
 </html>

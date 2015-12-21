@@ -86,7 +86,7 @@ app.configure(function() {
   app.use(app.router);
 });
 
-app.get("/", function(req, res) {
+/*app.get("/", function(req, res) {
   console.log("get root (" + req.isAuthenticated() + ")");
   
   if (req.isAuthenticated()) {
@@ -94,13 +94,13 @@ app.get("/", function(req, res) {
   } else {
     res.sendfile("client/login.html");
   }
-});
+});*/
 
-app.get('/users', function (req, res) {
+app.get('/api/users', function (req, res) {
   Users.list(db, res);
 });
 
-app.get('/users/create', function (req, res) {
+app.get('/api/users/create', function (req, res) {
   Users.create(db, req, res);
 });
 
@@ -108,30 +108,30 @@ function ensureAuthenticated(req, res, next) {
   if (req.isAuthenticated())
     return next();
   else
-    return res.json({ success: false, error: "Not authenticated" }); 
+    return res.json({ success: false, authenticated: false, error: "Not authenticated" }); 
 }
 
-app.get("/users/info", ensureAuthenticated, function(req, res) {
+app.get("/api/users/info", ensureAuthenticated, function(req, res) {
   console.log("/users/info (" + req.isAuthenticated() + ")");
   
   if (req.isAuthenticated()) {
     req.user.getProfileDetails(db, function(err, info) {
       if (err) {
-        return res.json({ success: false, error: "Cannot load profile" });
+        return res.json({ success: false, authenticated: true, error: "Cannot load profile" });
       } else {
-        return res.json({ success: true, id: req.user.id, name: req.user.name, characters: info });
+        return res.json({ success: true, authenticated: true, id: req.user.id, name: req.user.name, characters: info });
       }
     }); 
   } else {
-    return res.json({ success: false, error: "Not authenticated" }); 
+    return res.json({ success: false, authenticated: true, error: "Not authenticated" }); 
   }
 });
 
-app.get("/room/info", ensureAuthenticated, function(req, res) {
+app.get("/api/room/info", ensureAuthenticated, function(req, res) {
   RoomManager.sendRoomInfo(req, res, db);
 });
 
-app.post('/login',
+app.post('/api/login',
   passport.authenticate('local', { successRedirect: '/',
                                    failureRedirect: '/login.html?error=Login failed',
                                    failureFlash: true })
