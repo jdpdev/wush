@@ -74,4 +74,30 @@ PoseManager.prototype.loadFromRoom = function(db, id, count) {
     });
 }
 
+// Params: character, room, pose
+PoseManager.prototype.sendNewPose = function(req, res, db) {
+    this.addPose(db, req.body.character, req.body.room, req.body.pose)
+    .then(function(poseId) {
+        res.json({success: true, authenticated: true, id: poseId});
+    })
+    .catch(function(error) {
+        res.json({success: false, authenticated: true, error: error});
+    });
+}
+
+PoseManager.prototype.addPose = function(db, character, room, text) {
+    return new Promise(function(resolve, reject) {
+        var query = "INSERT INTO poses SET timestamp=NOW(), ?";
+        var params = {room: room, character: character, text: text};
+        
+        var dbquery = db.query(query, params, function(err, result) {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(result.insertId);
+            }
+        });
+    });
+}
+
 module.exports = PoseManager;

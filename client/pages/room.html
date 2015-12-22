@@ -42,21 +42,69 @@
     
   }
   
+  .clickable {
+    cursor: pointer;
+  }
+  
 </style>
 
-  <div class="page-header" style="background-color: #{{room.world.color}}; color: {{app.getContrastColor(room.world.color)}}">
-    <h3>{{room.info.name}}</h3>
+  <div class="row">
+    <div class="page-header col-md-12" style="background-color: #{{room.world.color}};">
+      <h3 style="color: {{app.getContrastColor(room.world.color)}}">
+        {{room.info.name}} 
+        <small style="color: {{app.getContrastColor(room.world.color)}}">[{{room.world.name}}]</small>
+      </h3>
+    </div>
   </div>
   
   <div class="row">
     
     <!-- Poses -->
     <div class="col-xs-12 col-sm-8 col-md-9">
-      <div class="pose" ng-repeat="pose in room.poses track by pose.id">
-        <h5 class="poseHead">{{pose.characterName}} <small>{{pose.timestamp | date:'medium'}}</small></h5>
-        <p class="poseBody">
-          {{pose.text}}
-        </p>
+      <div class="row">
+        <div class="col-xs-12">
+          <form ng-submit="room.sendPose()">
+            <input type="hidden" ng-model="room.poseData.room" />
+            <input type="hidden" ng-model="room.poseData.character" />
+            
+            <div class="form-group">
+              <div class="col-xs-12 clickable"
+                    ng-click="room.bShowWritePose = !room.bShowWritePose">
+                <label for="poseText">Write a Pose</label>
+                <i class="fa clickable" 
+                    ng-class="{'fa-caret-up': room.bShowWritePose, 'fa-caret-down': !room.bShowWritePose}"></i>
+              </div>
+            </div>
+            
+            <div class="form-group" ng-hide="!room.bShowWritePose">
+              <div class="col-xs-12 col-sm-8 col-md-10">
+                <textarea id="poseText" class="form-control" rows="3"
+                          ng-model="room.poseData.pose"></textarea>
+              </div>
+              
+              <div class="col-xs-12 col-sm-4 col-md-2">
+                <select>
+                  <option ng-repeat="character in room.playerCharacters track by character.id">
+                    {{character.name}}
+                  </option>
+                </select><br/>
+                
+                <button type="submit" class="btn btn-primary">Send</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      
+      <div class="row">
+        <div class="col-xs-12">
+          <div class="pose" ng-repeat="pose in room.poses track by pose.id">
+            <h5 class="poseHead">{{pose.characterName}} <small>{{pose.timestamp | date:'medium'}}</small></h5>
+            <p class="poseBody">
+              {{pose.text}}
+            </p>
+          </div>
+        </div>
       </div>
     </div>
     
@@ -66,7 +114,7 @@
         <h4>Characters</h4>
         <div ng-repeat="char in room.characters track by char.id">
           <h5>
-            <span ng-class="{playerChar: app.getUserInfo().id == char.ownerId}">{{char.name}}</span>
+            <span ng-class="{playerChar: $scope.app.getUserInfo().id == char.ownerId}">{{char.name}}</span>
             <i class="fa fa-info-circle moreInfo"
                 popover-trigger="mouseenter"
                 popover-placement="bottom" 

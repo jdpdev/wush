@@ -20,6 +20,9 @@ var RoomManager = new RoomManagerConstructor();
 var WorldManagerConstructor = require("./worldManager");
 var WorldManager = new WorldManagerConstructor();
 
+var PoseManagerConstructor = require("./poseManager");
+var PoseManager = new PoseManagerConstructor();
+
 // Set up database connection
 var db = mysql.createPool({
   connectionLimit: 20,
@@ -137,6 +140,13 @@ app.get("/api/room/members", ensureAuthenticated, function(req, res) {
 
 app.get("/api/room/poses", ensureAuthenticated, function(req, res) {
   RoomManager.loadRoomPoses(req, res, db);
+});
+
+// Params: character, room, pose
+app.post("/api/pose/add", ensureAuthenticated, function(req, res) {
+  // TODO authenticate user to characters, and characters to room
+  
+  PoseManager.sendNewPose(req, res, db);
 });
 
 app.post('/api/login',

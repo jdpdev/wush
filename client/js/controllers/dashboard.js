@@ -21,7 +21,7 @@ wushApp.controller("profileController", function($scope, $http, $location) {
                 self.characters = response.data.characters;
                 
                 /* global app */
-                wushApp.setUserInfo({name: response.data.name, id: response.data.id});
+                $scope.app.setUserInfo({name: response.data.name, id: response.data.id});
             } else {
                 console.log("data error");
                 
