@@ -12,6 +12,8 @@ wushApp.controller("roomController", function($scope, $http, $route, $routeParam
     
     this.bShowWritePose = false;
     
+    this.selectedCharacter = null;
+    
     this.poseData = {
         room: $routeParams.id,
         character: 0,
@@ -61,6 +63,10 @@ wushApp.controller("roomController", function($scope, $http, $route, $routeParam
                             self.playerCharacters.push(self.characters[i]);
                         }
                     }
+                    
+                    if (self.playerCharacters.length > 0) {
+                        self.selectedCharacter = self.playerCharacters[0];
+                    }
                 }
             } else {
                 console.log(response);
@@ -94,6 +100,9 @@ wushApp.controller("roomController", function($scope, $http, $route, $routeParam
     // Send a new pose to the server
     this.sendPose = function() {
         var self = this;
+        
+        this.poseData.character = this.selectedCharacter.id;
+        this.poseData.characterName = this.selectedCharacter.name;
         
         $http.post("/api/pose/add", this.poseData, {withCredentials: true}).then(
             

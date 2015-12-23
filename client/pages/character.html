@@ -1,0 +1,40 @@
+<div class="row">
+    <div class="page-header col-md-12">
+        <h3>
+            {{character.info.name}}
+        </h3>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xs-12 col-md-8">
+        <p class="lead">Description</p>
+        
+        <blockquote>
+            <p>{{character.info.description}}</p>
+        </blockquote>
+        
+        <form ng-submit="character.changeDescription()">
+            <div class="form-group">
+                <div class="col-xs-12">
+                    <label for="description">Write New Description</label>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <div class="col-xs-12 col-md-10">
+                    <textarea id="description" class="form-control"
+                                ng-model="character.newDescription"></textarea>
+                </div>
+                
+                <div class="col-xs-12 col-md-2">
+                    <button type="submit" class="btn btn-primary">Set Description</button>  
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <div class="col-xs-12 col-md-4">
+        
+    </div>
+</div>

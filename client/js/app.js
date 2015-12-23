@@ -1,8 +1,8 @@
 /* global angular */
-var wushApp = angular.module("wushApp", ["ngRoute", 'ui.bootstrap']);
+var wushApp = angular.module("wushApp", ["ngRoute", 'ui.bootstrap', "ngCookies"]);
 
 // configure our routes
-wushApp.config(function($routeProvider) {
+wushApp.config(function($routeProvider, $locationProvider) {
     $routeProvider
 
     // route for the home page
@@ -22,14 +22,34 @@ wushApp.config(function($routeProvider) {
         templateUrl : 'pages/room.html',
         controller  : 'roomController as room'
     })
+
+    // route for the contact page
+    .when('/places', {
+        templateUrl : 'pages/places.html',
+        controller  : 'placeListController as places'
+    })
+
+    // route for the contact page
+    .when('/places/:id', {
+        templateUrl : 'pages/place.html',
+        controller  : 'placeController as place'
+    })
+
+    // route for the contact page
+    .when('/character/:id', {
+        templateUrl : 'pages/character.html',
+        controller  : 'characterController as character'
+    })
     
     .otherwise({
         redirectTo: '/'
     });
+    
+    //$locationProvider.html5Mode(true);
 });
 
 // Main app controller
-wushApp.controller("wushController", function($scope) {
+wushApp.controller("wushController", function($scope, $cookies) {
     this.userInfo = null;
     
     this.getContrastColor = function(hex) {
@@ -39,9 +59,14 @@ wushApp.controller("wushController", function($scope) {
     // Sets the information of the current user
     this.setUserInfo = function(user) {
         this.userInfo = user;
+        $cookies.putObject("wushUserInfo", this.userInfo);
     }
     
     this.getUserInfo = function() {
+        if (this.userInfo == null) {
+            this.userInfo = $cookies.getObject("wushUserInfo");
+        }
+        
         return this.userInfo;
     }
 });

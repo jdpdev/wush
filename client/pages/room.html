@@ -83,10 +83,8 @@
               </div>
               
               <div class="col-xs-12 col-sm-4 col-md-2">
-                <select>
-                  <option ng-repeat="character in room.playerCharacters track by character.id">
-                    {{character.name}}
-                  </option>
+                <select ng-model="room.selectedCharacter"
+                        ng-options="character as character.name for character in room.playerCharacters track by character.id">
                 </select><br/>
                 
                 <button type="submit" class="btn btn-primary">Send</button>
