@@ -45,3 +45,44 @@ WorldManager.prototype.loadWorld = function(db, id) {
         });
     });
 }
+
+WorldManager.prototype.sendWorldList = function(req, res, db) {
+    this.getWorldList(db)
+    .then(function(worlds) {
+        res.json({success: true, authenticated: true, worlds: worlds});
+    })
+    .catch(function(error) {
+       res.json({success: false, authenticated: true, error: error}); 
+    });
+}
+
+WorldManager.prototype.getWorldList = function(db) {
+    var self = this;
+    
+    return new Promise(function(resolve, reject) {
+        var query = "SELECT w.*, r.id rid, r.name rname, r.description rdescription " + 
+                    "FROM world w " +
+                    "LEFT JOIN room r " +
+                    "   ON r.world = w.id";
+        
+        db.query(query, {}, function(err, rows, fields) {
+            if (err) {
+                reject(err);
+            }
+            
+            else {
+                var worlds = {};
+                
+                for (var i = 0; i < rows.length; i++) {
+                    if (worlds[rows[i].id] == undefined) {
+                        worlds[rows[i].id] = new World(rows[i]);
+                    }
+                    
+                    worlds[rows[i].id].addRoom(rows[i]);
+                }
+                
+                resolve(worlds);
+            }
+        });
+    });
+}

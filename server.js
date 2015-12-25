@@ -166,6 +166,10 @@ app.post('/api/login',
                                    failureFlash: true })
 );
 
+app.get("/api/world/list", ensureAuthenticated, function(req, res) {
+  WorldManager.sendWorldList(req, res, db);
+});
+
 /*
 var messages = [];
 var sockets = [];

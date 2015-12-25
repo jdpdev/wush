@@ -1,0 +1,47 @@
+<style>
+  .world {
+    text-align: center;
+    margin-bottom: 10px;
+    border: 2px solid #f0f;
+    border-radius: 5px;
+    padding: 0px;
+  }
+  
+  .world h5 {
+    padding: 5px;
+    margin: 0px;
+    margin-bottom: 5px;
+  }
+  
+  .room {
+    text-align: center;
+  }
+</style>
+
+<div class="row">
+    <div class="page-header col-md-12">
+        <h3>
+            Worlds
+        </h3>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xs-12">
+        <div class="row">
+            <div class="world col-xs-12 col-sm-6 col-md-3"
+                style="border-color: #{{world.color}};";
+                ng-repeat="world in places.worlds track by world.id">
+            
+                <h5 style="background-color: #{{world.color}}; color: {{app.getContrastColor(world.color)}}">{{world.name}}</h5>
+            
+                <div class="room"
+                  ng-repeat="room in world.rooms track by room.id"
+                  ng-click="places.jumpToRoom(room.id)">
+                
+                    <a href="#/room/{{room.id}}">{{room.name}}</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
