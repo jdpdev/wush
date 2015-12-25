@@ -40,4 +40,8 @@ wushApp.controller("profileController", function($scope, $http, $location) {
     this.jumpToRoom = function(roomId) {
         $location.path("/room/" + roomId);
     }
+    
+    this.jumpToCharacter = function(charId) {
+        $location.path("/character/" + charId);
+    }
 });

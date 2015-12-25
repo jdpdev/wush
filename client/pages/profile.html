@@ -10,11 +10,26 @@
     padding-bottom: 5px;
     margin: 0px;
     margin-bottom: 5px;
-    color: white;
   }
   
   .room {
     text-align: center;
+    position: relative;
+  }
+  
+  .room i {
+    position: absolute;
+    top: 30%;
+    right: 10px;
+  }
+  
+  .charTitle h5 {
+    position: relative;
+  }
+  
+  .charTitle h5 i {
+    position: absolute;
+    right: 10px;
   }
 </style>
 
@@ -28,14 +43,20 @@
     <div class="col-xs-12 col-sm-4 col-md-3">
       <div class="character"
           style="border: 2px solid #{{char.worldColor}}; border-radius: 5px;";
-          ng-repeat="char in profile.characters track by char.id"
-          ng-click="profile.jumpToRoom(char.room)">
+          ng-repeat="char in profile.characters track by char.id">
         
-        <h5 style="background-color: #{{char.worldColor}}; color: {{app.getContrastColor(char.worldColor)}}">{{char.name}}</h5>
-        
-        <div class="room">
-          {{char.roomName}}<br/>
-          <b>{{char.worldName}}</b>
+        <div class="charTitle"
+              ng-click="profile.jumpToCharacter(char.id)">
+          <h5>{{char.name}} <i class="fa fa-eye"></i></h5>
+        </div>
+            
+        <div class="room"
+              style="background-color: #{{char.worldColor}}; color: {{app.getContrastColor(char.worldColor)}}"
+              ng-click="profile.jumpToRoom(char.room)">
+          
+              {{char.roomName}}<br/>
+              <b>{{char.worldName}}</b>
+              <i class="fa fa-arrow-right"></i>
         </div>
       </div>
     </div>
