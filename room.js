@@ -27,10 +27,11 @@ Room.prototype.getMembers = function(db) {
                     "FROM locations l " +
                     "LEFT JOIN characters c " +
                     "ON c.id = l.character " +
-                    "WHERE ?";
+                    "WHERE ? and l.exittime is null " +
+                    "ORDER BY l.entertime desc";
         var inputs = {"l.room": self.id};
         
-        db.query(query, inputs, function(err, rows, fields) {
+        var test = db.query(query, inputs, function(err, rows, fields) {
             if (err) {
                 reject(err);
             }
@@ -45,7 +46,9 @@ Room.prototype.getMembers = function(db) {
                 
                 resolve(chars);
             }
-        });  
+        }); 
+        
+        console.log(test.sql);
     });
 }
 

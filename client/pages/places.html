@@ -2,9 +2,20 @@
   .world {
     text-align: center;
     margin-bottom: 10px;
+    padding: 5px;
+  }
+  
+  .world i {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      cursor: pointer;
+  }
+  
+  .worldBorder {
     border: 2px solid #f0f;
     border-radius: 5px;
-    padding: 0px;
+    position: relative;
   }
   
   .world h5 {
@@ -30,16 +41,23 @@
     <div class="col-xs-12">
         <div class="row">
             <div class="world col-xs-12 col-sm-6 col-md-3"
-                style="border-color: #{{world.color}};";
                 ng-repeat="world in places.worlds track by world.id">
-            
-                <h5 style="background-color: #{{world.color}}; color: {{app.getContrastColor(world.color)}}">{{world.name}}</h5>
-            
-                <div class="room"
-                  ng-repeat="room in world.rooms track by room.id"
-                  ng-click="places.jumpToRoom(room.id)">
                 
-                    <a href="#/room/{{room.id}}">{{room.name}}</a>
+                <div class="worldBorder" style="border-color: #{{world.color}};">
+                    <i class="fa fa-eye"
+                        style="color: {{app.getContrastColor(world.color)}}"
+                        popover-trigger="mouseenter"
+                        popover-placement="left" 
+                        uib-popover="{{world.description}}"></i>
+                    
+                    <h5 style="background-color: #{{world.color}}; color: {{app.getContrastColor(world.color)}}">{{world.name}}</h5>
+                
+                    <div class="room"
+                      ng-repeat="room in world.rooms track by room.id"
+                      ng-click="places.jumpToRoom(room.id)">
+                    
+                        <a href="#/room/{{room.id}}">{{room.name}}</a>
+                    </div>
                 </div>
             </div>
         </div>

@@ -78,7 +78,7 @@ Users.prototype.populate = function(row) {
 }
 
 Users.prototype.getProfileDetails = function(db, verify) {
-    var query = "SELECT c.id, c.name cname, l.entertime, r.id rid, r.name rname, r.description, w.id wid, w.name wname, w.color " +
+    var query = "select * from (SELECT c.id, c.name cname, l.entertime, r.id rid, r.name rname, r.description, w.id wid, w.name wname, w.color " +
                     "from characters c " +
                     "left join locations l " +
                     "	on l.character = c.id " +
@@ -86,7 +86,9 @@ Users.prototype.getProfileDetails = function(db, verify) {
                     "	on r.id = l.room " +
                     "left join world w " +
                     "	on w.id = r.world " +
-                    "WHERE ?";
+                    "WHERE ? " +
+                    "ORDER BY l.entertime desc) blah " +
+                    "GROUP BY id";
     var inputs = {"c.owner": this.id};
     
     var request = db.query(query, inputs, function(err, rows, fields) {

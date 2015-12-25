@@ -145,6 +145,10 @@ app.get("/api/room/poses", ensureAuthenticated, function(req, res) {
   RoomManager.loadRoomPoses(req, res, db);
 });
 
+app.post("/api/room/relocate", ensureAuthenticated, function(req, res) {
+  RoomManager.relocateCharacter(req, res, db);
+});
+
 app.get("/api/character/info", ensureAuthenticated, function(req, res) {
   CharacterManager.sendCharacterInfo(req, res, db);
 });

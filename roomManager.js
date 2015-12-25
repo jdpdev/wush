@@ -124,3 +124,33 @@ RoomManager.prototype.loadRoomPoses = function(req, res, db) {
         }); 
     }
 };
+
+// Relocate a character into this room
+RoomManager.prototype.relocateCharacter = function(req, res, db) {
+    // TODO authenticate user to character
+    var self = this;
+    
+    //return new Promise(function(resolve, reject) {
+        var update = "UPDATE locations SET exittime=NOW() where exittime IS NULL AND ?";
+        var updateInput = {"character": req.body.character};
+        
+        db.query(update, updateInput, function(err, result) {
+            
+            if (err) {
+                res.json({success: false, authenticated: true, error: err});
+                return;
+            }
+          
+            var query = "INSERT INTO locations SET entertime=NOW(), ?";
+            var inputs = {"character": req.body.character, "room": req.body.room};
+            
+            db.query(query, inputs, function(err2, result2) {
+               if (err2) {
+                   res.json({success: false, authenticated: true, error: err2});
+               } else {
+                   res.json({success: true, authenticated: true});
+               }
+            });
+        });
+    //});
+};
