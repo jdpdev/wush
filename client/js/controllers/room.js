@@ -59,11 +59,6 @@ wushApp.controller("roomController", function($scope, $http, $route, $routeParam
                 if (self.characters.length > 0) {
                     self.poseData.character = self.characters[0].id;
                     self.poseData.characterName = self.characters[0].name;
-                    
-                    // Auto-select for posing
-                    if (self.playerCharacters.length > 0) {
-                        self.selectedCharacter = self.playerCharacters[0];
-                    }
                 }
                 
                 // Find the user's characters in the room
@@ -84,6 +79,11 @@ wushApp.controller("roomController", function($scope, $http, $route, $routeParam
                     if (!bFound) {
                         self.missingCharacters.push(userChars[i]);
                     }
+                }
+                
+                // Auto-select for posing
+                if (self.playerCharacters.length > 0) {
+                    self.selectedCharacter = self.playerCharacters[0];
                 }
                 
                 console.log(self.missingCharacters);
