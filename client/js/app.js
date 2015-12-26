@@ -40,6 +40,12 @@ wushApp.config(function($routeProvider, $locationProvider) {
         templateUrl : 'pages/character.html',
         controller  : 'characterController as character'
     })
+
+    // route for the contact page
+    .when('/newaccount', {
+        templateUrl : 'pages/newaccount.html',
+        controller  : 'accountController as account'
+    })
     
     .otherwise({
         redirectTo: '/'

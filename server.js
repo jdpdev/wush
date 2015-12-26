@@ -106,7 +106,7 @@ app.get('/api/users', function (req, res) {
   Users.list(db, res);
 });
 
-app.get('/api/users/create', function (req, res) {
+app.post('/api/users/create', function (req, res) {
   Users.create(db, req, res);
 });
 

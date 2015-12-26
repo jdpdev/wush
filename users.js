@@ -18,15 +18,19 @@ Users.prototype.list = function(db, res) {
 
 Users.prototype.create = function(db, req, res) {
     var passwordHash = require('password-hash');
-    var hashedPassword = passwordHash.generate(req.query.password);
+    var hashedPassword = passwordHash.generate(req.body.password);
     
     var query = "INSERT INTO users SET ?";
-    var inputs = {name: req.query.name, password: hashedPassword, email: req.query.email};
+    var inputs = {name: req.body.username, password: hashedPassword, email: req.body.email};
     
     var request = db.query(query, inputs, function(err, rows, fields) {
-        if (err) throw err;
+        if (err) {
+            res.json({success: false, authenticated: false, error: err});
+        } else {
+            res.json({success: true, authenticated: false});
+        }
         
-        res.send("User " + req.query.name + " created");
+        // 1062 duplicate errno
     });
 }
 
@@ -38,6 +42,7 @@ Users.prototype.findByName = function(db, name, verify) {
     var request = db.query(query, inputs, function(err, rows, fields) {
         if (err || rows.length != 1) {
             verify(err, null);   
+            return;
         }
         
         /* global User */
