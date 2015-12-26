@@ -6,6 +6,19 @@ function CharacterManager() {
 
 CharacterManager.prototype.cache = {};
 
+CharacterManager.prototype.createCharacter = function(req, res, db) {
+    var query = "INSERT INTO `characters` SET ?";
+    var inputs = {"name": req.body.name, "owner": req.body.owner};
+    
+    db.query(query, inputs, function(err, result) {
+        if (err) {
+            res.json({success: false, authenticated: true, error: err});
+        } else {
+            res.json({success: true, authenticated: true, id: result.insertId});
+        }
+    });
+}
+
 /**
  * Send information about a given character
  */

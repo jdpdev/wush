@@ -157,6 +157,10 @@ app.post("/api/character/description", ensureAuthenticated, function(req, res) {
   CharacterManager.changeDescription(req, res, db);
 });
 
+app.post("/api/character/create", ensureAuthenticated, function(req, res) {
+  CharacterManager.createCharacter(req, res, db);
+});
+
 // Params: character, room, pose
 app.post("/api/pose/add", ensureAuthenticated, function(req, res) {
   // TODO authenticate user to characters, and characters to room
