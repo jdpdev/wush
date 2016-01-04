@@ -4,14 +4,26 @@ var PoseManager = function() {
     
 }
 
+PoseManager.prototype.initialize = function(app, ensureAuthenticated, db) {
+    var self = this;
+ 
+    // Params: character, room, pose
+    app.post("/api/pose/add", ensureAuthenticated, function(req, res) {
+      // TODO authenticate user to characters, and characters to room
+      
+      self.sendNewPose(req, res, db);
+    });   
+}
+
 /**
  * Loads a list of recent poses from a room since a certain time
  * @param db Database connection
  * @param id Id of the room to get the poses from
  * @param timestamp Time to get all poses after
+ * @param character Id of the character the poses are being pulled for
  * @return Promise that sends an array of poses
  */
-PoseManager.prototype.loadFromRoomSince = function(db, id, timestamp) {
+PoseManager.prototype.loadFromRoomSince = function(db, id, timestamp, character) {
     var self = this;
     
     return new Promise(function(resolve, reject) {
@@ -34,6 +46,8 @@ PoseManager.prototype.loadFromRoomSince = function(db, id, timestamp) {
                 }
                 
                 resolve(poses);
+                
+                self.updateLastSeen(db, character);
             }
         });
     });
@@ -44,9 +58,10 @@ PoseManager.prototype.loadFromRoomSince = function(db, id, timestamp) {
  * @param db Database connection
  * @param id Id of the room to get the poses from
  * @param count The max number of poses to get
+ * @param user Id of the user the poses are being pulled for
  * @return Promise that sends an array of poses
  */
-PoseManager.prototype.loadFromRoom = function(db, id, count) {
+PoseManager.prototype.loadFromRoom = function(db, id, count, user) {
     var self = this;
     
     return new Promise(function(resolve, reject) {
@@ -69,6 +84,8 @@ PoseManager.prototype.loadFromRoom = function(db, id, count) {
                 }
                 
                 resolve(poses);
+                
+                self.updateOwnerLastSeen(db, user, id);
             }
         });
     });
@@ -86,6 +103,8 @@ PoseManager.prototype.sendNewPose = function(req, res, db) {
 }
 
 PoseManager.prototype.addPose = function(db, character, room, text) {
+    var self = this;
+    
     return new Promise(function(resolve, reject) {
         var query = "INSERT INTO poses SET timestamp=NOW(), ?";
         var params = {room: room, character: character, text: text};
@@ -95,8 +114,59 @@ PoseManager.prototype.addPose = function(db, character, room, text) {
                 reject(err);
             } else {
                 resolve(result.insertId);
+                
+                // Update the last seen date
+                self.updateCharacterLastSeen(db, character);
             }
         });
+    });
+}
+
+// Updates the lastseen time for characters owned by a user in a room
+PoseManager.prototype.updateOwnerLastSeen = function(db, owner, room) {
+    var self = this;
+    var query = "SELECT l.character " + 
+                "FROM locations l " + 
+                "LEFT JOIN characters c ON l.character = c.id " + 
+                "WHERE l.exittime is null and l.room=" + db.escape(parseInt(room)) + " and c.owner=" + db.escape(owner);
+    var params = {"l.room": room, "c.owner": owner};
+    
+    var request = db.query(query, {}, function(err, rows, fields) {
+        if (err) {
+            console.log(err.message);
+        } else {
+            var ids = [];
+            
+            for (var i = 0; i < rows.length; i++) {
+                ids.push(rows[i].character);
+            }
+            
+            if (ids.length > 0) {
+                var query = "UPDATE characters SET lastseen=NOW() where id in(" + ids.join() + ")";
+                
+                db.query(query, {}, function(err, result) {
+                    if (err) {
+                        
+                    } else {
+                        
+                    }
+                });
+            }
+        }
+    });
+}
+
+// Update the lastseen time for the character 
+PoseManager.prototype.updateCharacterLastSeen = function(db, character) {
+    var query = "UPDATE characters SET lastseen=NOW() where ?";
+    var params = {id: character};
+    
+    db.query(query, params, function(err, result) {
+        if (err) {
+            
+        } else {
+            
+        }
     });
 }
 

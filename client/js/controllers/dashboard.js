@@ -37,6 +37,24 @@ wushApp.controller("profileController", function($scope, $http, $location, $uibM
         }
     )
     
+    // Last poses
+    $http.get("/api/character/lastseen", {withCredentials: true, params: {id: $scope.app.getUserInfo().id}}).then(
+        
+        // Success
+        function (response) {
+            if (response.data.success) {
+                self.newPoses = response.data.poses;
+            } else {
+                console.log(response);
+            }
+        },
+        
+        // Error
+        function (response) {
+            console.log(response);
+        }
+    );
+    
     this.jumpToRoom = function(roomId) {
         $location.path("/room/" + roomId);
     }

@@ -133,50 +133,16 @@ app.get("/api/users/info", ensureAuthenticated, function(req, res) {
   }
 });
 
-app.get("/api/room/info", ensureAuthenticated, function(req, res) {
-  RoomManager.sendRoomInfo(req, res, db);
-});
-
-app.get("/api/room/members", ensureAuthenticated, function(req, res) {
-  RoomManager.loadRoomMembers(req, res, db);
-});
-
-app.get("/api/room/poses", ensureAuthenticated, function(req, res) {
-  RoomManager.loadRoomPoses(req, res, db);
-});
-
-app.post("/api/room/relocate", ensureAuthenticated, function(req, res) {
-  RoomManager.relocateCharacter(req, res, db);
-});
-
-app.get("/api/character/info", ensureAuthenticated, function(req, res) {
-  CharacterManager.sendCharacterInfo(req, res, db);
-});
-
-app.post("/api/character/description", ensureAuthenticated, function(req, res) {
-  CharacterManager.changeDescription(req, res, db);
-});
-
-app.post("/api/character/create", ensureAuthenticated, function(req, res) {
-  CharacterManager.createCharacter(req, res, db);
-});
-
-// Params: character, room, pose
-app.post("/api/pose/add", ensureAuthenticated, function(req, res) {
-  // TODO authenticate user to characters, and characters to room
-  
-  PoseManager.sendNewPose(req, res, db);
-});
-
 app.post('/api/login',
   passport.authenticate('local', { successRedirect: '/',
                                    failureRedirect: '/login.html?error=Login failed',
                                    failureFlash: true })
 );
 
-app.get("/api/world/list", ensureAuthenticated, function(req, res) {
-  WorldManager.sendWorldList(req, res, db);
-});
+RoomManager.initialize(app, ensureAuthenticated, db);
+CharacterManager.initialize(app, ensureAuthenticated, db);
+PoseManager.initialize(app, ensureAuthenticated, db);
+WorldManager.initialize(app, ensureAuthenticated, db);
 
 /*
 var messages = [];

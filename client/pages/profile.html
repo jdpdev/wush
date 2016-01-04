@@ -31,6 +31,28 @@
     position: absolute;
     right: 10px;
   }
+  
+  .pose {
+    margin-bottom: 5px;
+    padding: 5px;
+    border-bottom: 1px dotted #ddd;
+  }
+  
+  .pose:nth-child(even) {
+    background-color: #eee;
+  }
+  
+  .poseHead {
+    font-weight: bold;
+  }
+  
+  .poseWorld {
+    padding: 2px;
+  }
+  
+  .poseBody {
+    
+  }
 </style>
 
 <div class="page-header">
@@ -67,8 +89,19 @@
     
     <!-- New poses -->
     <div class="col-xs-12 col-sm-8 col-md-9">
-      <div ng-hide="newPoses.length == 0">
+      <div ng-hide="profile.newPoses.length == 0">
         <i>There are no new poses</i>
+      </div>
+      
+      <div class="pose" ng-repeat="pose in profile.newPoses track by pose.id">
+        <h5 class="poseHead">
+          {{pose.characterName}} 
+          <small>{{pose.timestamp | date:'medium'}}</small>
+          <span class="poseWorld" style="background-color: #{{pose.color}}; color: {{app.getContrastColor(pose.color)}};">{{pose.roomName}}</span>
+        </h5>
+        <p class="poseBody">
+          {{pose.text}}
+        </p>
       </div>
     </div>
 </div>
