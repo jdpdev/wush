@@ -6,6 +6,14 @@ function WorldManager() {
     //this.worldCache = {};
 }
 
+WorldManager.prototype.initialize = function(app, ensureAuthenticated, db) {
+    var self = this;
+    
+    app.get("/api/world/list", ensureAuthenticated, function(req, res) {
+      self.sendWorldList(req, res, db);
+    });
+}
+
 WorldManager.prototype.worldCache = {};
 
 /**

@@ -4,6 +4,27 @@ function CharacterManager() {
     
 }
 
+// Initialize all routing calls handled by the mananger
+CharacterManager.prototype.initialize = function(app, ensureAuthenticated, db) {
+    var self = this;
+    
+    app.get("/api/character/info", ensureAuthenticated, function(req, res) {
+      self.sendCharacterInfo(req, res, db);
+    });
+    
+    app.get("/api/character/lastseen", ensureAuthenticated, function(req, res) {
+      self.sendLastSeenMessages(req, res, db);
+    });
+    
+    app.post("/api/character/description", ensureAuthenticated, function(req, res) {
+      self.changeDescription(req, res, db);
+    });
+    
+    app.post("/api/character/create", ensureAuthenticated, function(req, res) {
+      self.createCharacter(req, res, db);
+    });   
+}
+
 CharacterManager.prototype.cache = {};
 
 CharacterManager.prototype.createCharacter = function(req, res, db) {
@@ -16,6 +37,53 @@ CharacterManager.prototype.createCharacter = function(req, res, db) {
         } else {
             res.json({success: true, authenticated: true, id: result.insertId});
         }
+    });
+}
+
+CharacterManager.prototype.sendLastSeenMessages = function(req, res, db) {
+    this.getLastSeenMessages(db, req.query.id)
+    .then(function(poses) {
+        res.json({success: true, authenticated: true, poses: poses});
+    })
+    .catch(function(error) {
+        res.json({success: false, authenticated: true, error: error});
+    });
+}
+
+// Get the last seen messages for a user
+// id The id of the user
+CharacterManager.prototype.getLastSeenMessages = function(db, id) {
+    return new Promise(function(resolve, reject) {
+        var charquery = "SELECT c.id, c.lastseen, l.room FROM characters c LEFT JOIN locations l on l.character=c.id WHERE l.exittime is null and c.owner=" + db.escape(id);
+       
+        db.query(charquery, {}, function(err, rows, fields) {
+            if (err) {
+                reject(err);
+            } else {
+                var characters = [];
+                
+                for (var i = 0; i < rows.length; i++) {
+                    characters.push("(p.room = " + db.escape(rows[i].room) + " and p.timestamp >= " + db.escape(rows[i].lastseen) + ")");
+                }
+                
+                var params = characters.join(" or ");
+                var query = "SELECT p.*, c.name as characterName, r.name as roomName, w.color " +
+                            "FROM poses p " +
+                            "LEFT JOIN characters c ON c.id = p.character " +
+                            "LEFT JOIN room r ON r.id = p.room " +
+                            "LEFT JOIN world w ON w.id = r.world " +
+                            "WHERE " + params + " " +
+                            "ORDER BY timestamp desc";
+                
+                db.query(query, {}, function(err, poses, fields) {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(poses);
+                    }
+                });
+            }
+        });
     });
 }
 

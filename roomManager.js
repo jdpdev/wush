@@ -10,6 +10,27 @@ function RoomManager() {
     this.roomCache = {};
 }
 
+// Initialize all routing calls handled by the mananger
+RoomManager.prototype.initialize = function(app, ensureAuthenticated, db) {
+    var self = this;
+    
+    app.get("/api/room/info", ensureAuthenticated, function(req, res) {
+      self.sendRoomInfo(req, res, db);
+    });
+    
+    app.get("/api/room/members", ensureAuthenticated, function(req, res) {
+      self.loadRoomMembers(req, res, db);
+    });
+    
+    app.get("/api/room/poses", ensureAuthenticated, function(req, res) {
+      self.loadRoomPoses(req, res, db);
+    });
+    
+    app.post("/api/room/relocate", ensureAuthenticated, function(req, res) {
+      self.relocateCharacter(req, res, db);
+    });
+}
+
 /**
  * Handle a request for room info.
  * @param {req} req The request
@@ -104,7 +125,7 @@ RoomManager.prototype.loadRoomPoses = function(req, res, db) {
     
     // Get poses since a date
     if (req.query.timestamp != undefined) {
-        PoseManager.loadFromRoomSince(db, req.query.id, req.query.timestamp)
+        PoseManager.loadFromRoomSince(db, req.query.id, req.query.timestamp, req.user.id)
         .then(function(poses) {
             res.json({success: true, authenticated: true, poses: poses});
         })
@@ -115,7 +136,7 @@ RoomManager.prototype.loadRoomPoses = function(req, res, db) {
     
     // Get the last X poses
     else {
-        PoseManager.loadFromRoom(db, req.query.id, 10)
+        PoseManager.loadFromRoom(db, req.query.id, 10, req.user.id)
         .then(function(poses) {
             res.json({success: true, authenticated: true, poses: poses});
         })
