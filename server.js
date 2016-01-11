@@ -150,13 +150,15 @@ io.on('connection', function (socket) {
     });
 
     socket.on('enterroom', function (room) {
-      console.log("enterroom: " + room);
       socket.join(room); 
     });
 
     socket.on('leaveroom', function (room) {
-      console.log("leaveroom: " + room);
       socket.leave(room); 
+    });
+
+    socket.on('update last seen', function (params) {
+      PoseManager.updateOwnerLastSeen(db, params.owner, params.room);
     });
   });
 

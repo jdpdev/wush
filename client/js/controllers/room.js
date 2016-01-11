@@ -121,7 +121,6 @@ wushApp.controller("roomController", function($scope, $http, $route, $routeParam
     });
     
     this.enterRoom = function() {
-        console.log("enterRoom >> " + this.info.id);
         $scope.app.getSocket().emit("enterroom", this.info.id);
     }
     
@@ -135,6 +134,8 @@ wushApp.controller("roomController", function($scope, $http, $route, $routeParam
         $scope.$apply(function() {
             self.poses.unshift(pose);  
         });
+        
+        $scope.app.getSocket().emit("update last seen", {owner: $scope.app.getUserInfo().id, room: self.info.id});
     }
     
     // Send a new pose to the server

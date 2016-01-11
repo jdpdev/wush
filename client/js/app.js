@@ -86,7 +86,7 @@ wushApp.controller("wushController", function($scope, $cookies, $controller, $ro
     
     // Connection successful
     this.socket.on('connect', function () {
-        console.log("socket connection");
+        //console.log("socket connection");
     });
     
     // Notification of a new pose in a room not being viewed
@@ -96,7 +96,7 @@ wushApp.controller("wushController", function($scope, $cookies, $controller, $ro
     
     // Notification of new pose in the same room
     this.socket.on('newpose', function (pose) {
-        console.log(pose);
+        //console.log(pose);
         $route.current.scope.room.receiveNewPose(pose);
     });
 });
