@@ -4,8 +4,11 @@ var PoseManager = function() {
     
 }
 
-PoseManager.prototype.initialize = function(app, ensureAuthenticated, db) {
+PoseManager.prototype.io = null;
+
+PoseManager.prototype.initialize = function(app, ensureAuthenticated, db, io) {
     var self = this;
+    this.io = io;
  
     // Params: character, room, pose
     app.post("/api/pose/add", ensureAuthenticated, function(req, res) {
@@ -27,7 +30,7 @@ PoseManager.prototype.loadFromRoomSince = function(db, id, timestamp, character)
     var self = this;
     
     return new Promise(function(resolve, reject) {
-        var query = "SELECT p.*, c.name as characterName " + 
+        var query = "SELECT p.*, c.id as characterId, c.name as characterName " + 
                     "FROM poses p " +
                     "LEFT JOIN characters c " +
                     "   ON c.id = p.character " +
@@ -65,7 +68,7 @@ PoseManager.prototype.loadFromRoom = function(db, id, count, user) {
     var self = this;
     
     return new Promise(function(resolve, reject) {
-        var query = "SELECT p.*, c.name as characterName " + 
+        var query = "SELECT p.*, c.id as characterId, c.name as characterName " + 
                     "FROM poses p " +
                     "LEFT JOIN characters c " +
                     "   ON c.id = p.character " +
@@ -116,10 +119,25 @@ PoseManager.prototype.addPose = function(db, character, room, text) {
                 resolve(result.insertId);
                 
                 // Update the last seen date
-                self.updateCharacterLastSeen(db, character);
+                //self.updateCharacterLastSeen(db, character);
+                var poseQuery = "SELECT p.*, c.id as characterId, c.name as characterName " + 
+                                "FROM poses p " +
+                                "LEFT JOIN characters c " +
+                                "   ON c.id = p.character " +
+                                "WHERE p.id = " + result.insertId;
+                                
+                db.query(poseQuery, {}, function(err, rows, fields) {
+                    if (!err) {
+                        self.broadcastPose(room, rows[0].characterId, rows[0].characterName, rows[0].id, rows[0].text, rows[0].timestamp);
+                    }
+                });
             }
         });
     });
+}
+
+PoseManager.prototype.broadcastPose = function(room, charId, character, id, pose, time) {
+    this.io.sockets["in"](room).emit("newpose", {character: charId, characterName: character, id: id, text: pose, timestamp: time});
 }
 
 // Updates the lastseen time for characters owned by a user in a room

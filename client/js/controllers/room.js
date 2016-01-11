@@ -2,7 +2,7 @@
 wushApp.controller("roomController", function($scope, $http, $route, $routeParams, $location) {
     var self = this;
     
-    this.info = {};
+    this.info = {id: $routeParams.id};
     this.world = {color: "#cccccc"};
     this.characters = [];
     this.poses = [];
@@ -116,6 +116,27 @@ wushApp.controller("roomController", function($scope, $http, $route, $routeParam
         }
     );
     
+    $scope.$on("$destroy", function() {
+       self.leaveRoom();
+    });
+    
+    this.enterRoom = function() {
+        console.log("enterRoom >> " + this.info.id);
+        $scope.app.getSocket().emit("enterroom", this.info.id);
+    }
+    
+    this.leaveRoom = function() {
+        $scope.app.getSocket().emit("leaveroom", this.info.id);
+    }
+    
+    // New pose received from a live connection
+    this.receiveNewPose = function(pose) {
+        //$scope.room.poses.unshift(pose);
+        $scope.$apply(function() {
+            self.poses.unshift(pose);  
+        });
+    }
+    
     // Send a new pose to the server
     this.sendPose = function() {
         var self = this;
@@ -140,7 +161,7 @@ wushApp.controller("roomController", function($scope, $http, $route, $routeParam
                         characterName: self.poseData.characterName
                     };
                     
-                    self.poses.unshift(pose);
+                    //self.poses.unshift(pose);
                     
                     self.poseData.pose = "";
                 }
@@ -174,4 +195,6 @@ wushApp.controller("roomController", function($scope, $http, $route, $routeParam
             }
         );
     }
+    
+    this.enterRoom();
 });

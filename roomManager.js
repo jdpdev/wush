@@ -8,11 +8,13 @@ module.exports = RoomManager;
 
 function RoomManager() {
     this.roomCache = {};
+    this.io = null;
 }
 
 // Initialize all routing calls handled by the mananger
-RoomManager.prototype.initialize = function(app, ensureAuthenticated, db) {
+RoomManager.prototype.initialize = function(app, ensureAuthenticated, db, io) {
     var self = this;
+    this.io = io;
     
     app.get("/api/room/info", ensureAuthenticated, function(req, res) {
       self.sendRoomInfo(req, res, db);

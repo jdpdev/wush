@@ -139,70 +139,34 @@ app.post('/api/login',
                                    failureFlash: true })
 );
 
-RoomManager.initialize(app, ensureAuthenticated, db);
-CharacterManager.initialize(app, ensureAuthenticated, db);
-PoseManager.initialize(app, ensureAuthenticated, db);
-WorldManager.initialize(app, ensureAuthenticated, db);
-
-/*
-var messages = [];
+// Set up the socket
 var sockets = [];
 
 io.on('connection', function (socket) {
-    messages.forEach(function (data) {
-      socket.emit('message', data);
-    });
-
     sockets.push(socket);
 
     socket.on('disconnect', function () {
       sockets.splice(sockets.indexOf(socket), 1);
-      updateRoster();
     });
 
-    socket.on('message', function (msg) {
-      var text = String(msg || '');
-
-      if (!text)
-        return;
-
-      socket.get('name', function (err, name) {
-        var data = {
-          name: name,
-          text: text
-        };
-
-        broadcast('message', data);
-        messages.push(data);
-      });
+    socket.on('enterroom', function (room) {
+      console.log("enterroom: " + room);
+      socket.join(room); 
     });
 
-    socket.on('identify', function (name) {
-      socket.set('name', String(name || 'Anonymous'), function (err) {
-        updateRoster();
-      });
+    socket.on('leaveroom', function (room) {
+      console.log("leaveroom: " + room);
+      socket.leave(room); 
     });
   });
-
-function updateRoster() {
-  async.map(
-    sockets,
-    function (socket, callback) {
-      socket.get('name', callback);
-    },
-    function (err, names) {
-      broadcast('roster', names);
-    }
-  );
-}
-
-function broadcast(event, data) {
-  sockets.forEach(function (socket) {
-    socket.emit(event, data);
-  });
-}*/
 
 server.listen(process.env.PORT || 3000, process.env.IP || "0.0.0.0", function(){
   var addr = server.address();
   console.log("Chat server listening at", addr.address + ":" + addr.port);
 });
+
+// Set up the managers
+RoomManager.initialize(app, ensureAuthenticated, db, io);
+CharacterManager.initialize(app, ensureAuthenticated, db);
+PoseManager.initialize(app, ensureAuthenticated, db, io);
+WorldManager.initialize(app, ensureAuthenticated, db);

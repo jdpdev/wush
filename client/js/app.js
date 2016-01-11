@@ -55,7 +55,7 @@ wushApp.config(function($routeProvider, $locationProvider) {
 });
 
 // Main app controller
-wushApp.controller("wushController", function($scope, $cookies) {
+wushApp.controller("wushController", function($scope, $cookies, $controller, $route) {
     this.userInfo = null;
     
     this.getContrastColor = function(hex) {
@@ -75,6 +75,30 @@ wushApp.controller("wushController", function($scope, $cookies) {
         
         return this.userInfo;
     }
+    
+    this.getSocket = function() {
+        return this.socket;
+    }
+    
+    // Set up the socket connection
+    /* global io */
+    this.socket = io.connect();
+    
+    // Connection successful
+    this.socket.on('connect', function () {
+        console.log("socket connection");
+    });
+    
+    // Notification of a new pose in a room not being viewed
+    this.socket.on('distancepose', function (info) {
+        console.log("distancepose: " + info);
+    });
+    
+    // Notification of new pose in the same room
+    this.socket.on('newpose', function (pose) {
+        console.log(pose);
+        $route.current.scope.room.receiveNewPose(pose);
+    });
 });
 
 function hexToRgb(hex) {
