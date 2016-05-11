@@ -16,6 +16,6 @@
     "mysql": "~2.9.0",
     "passport": "~0.3.2",
     "passport-local": "~1.0.0",
-    "passport-hash": "~1.2.2"
+    "passport-hash": "~0.6.0"
   }
 }
