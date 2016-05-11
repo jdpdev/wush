@@ -29,11 +29,15 @@ var CharacterManager = new CharacterManagerConstructor();
 // Set up database connection
 var db = mysql.createPool({
   connectionLimit: 20,
-  host: "localhost",
-  user: "dupersaurus",
-  password: "vfr4esz.",
-  database: "c9"
+  host: process.env.DB_PATH,
+  user: process.env.DB_USER,
+  password: process.env.DB_PWD,
+  database: process.env.DATABASE
 });
+
+/*console.log(process.env.DB_PATH);
+console.log(process.env.DATABASE);
+console.log(process.env);*/
 
 /*db.connect(function(err){
   if(err){
@@ -139,70 +143,54 @@ app.post('/api/login',
                                    failureFlash: true })
 );
 
-RoomManager.initialize(app, ensureAuthenticated, db);
-CharacterManager.initialize(app, ensureAuthenticated, db);
-PoseManager.initialize(app, ensureAuthenticated, db);
-WorldManager.initialize(app, ensureAuthenticated, db);
-
-/*
-var messages = [];
+// Set up the socket
 var sockets = [];
 
 io.on('connection', function (socket) {
-    messages.forEach(function (data) {
-      socket.emit('message', data);
-    });
+  sockets.push(socket);
 
-    sockets.push(socket);
-
-    socket.on('disconnect', function () {
-      sockets.splice(sockets.indexOf(socket), 1);
-      updateRoster();
-    });
-
-    socket.on('message', function (msg) {
-      var text = String(msg || '');
-
-      if (!text)
-        return;
-
-      socket.get('name', function (err, name) {
-        var data = {
-          name: name,
-          text: text
-        };
-
-        broadcast('message', data);
-        messages.push(data);
-      });
-    });
-
-    socket.on('identify', function (name) {
-      socket.set('name', String(name || 'Anonymous'), function (err) {
-        updateRoster();
-      });
-    });
+  socket.on('disconnect', function () {
+    sockets.splice(sockets.indexOf(socket), 1);
   });
 
-function updateRoster() {
-  async.map(
-    sockets,
-    function (socket, callback) {
-      socket.get('name', callback);
-    },
-    function (err, names) {
-      broadcast('roster', names);
+  socket.on('enterroom', function (room) {
+    socket.join(room); 
+  });
+
+  socket.on('leaveroom', function (room) {
+    socket.leave(room); 
+  });
+
+  socket.on('update last seen', function (params) {
+    PoseManager.updateOwnerLastSeen(db, params.owner, params.room);
+  });
+  
+  if (socket.handshake.query != undefined) {
+    Users.findById(db, socket.handshake.query.user, function(err, user) {
+      if (!err) {
+        socket.user = user;
+      }
+    });
+  }
+});
+
+function getSocketForUserId(id) {
+  for (var i = 0; i < sockets.length; i++) {
+    if (sockets[i].user && sockets[i].user.id == id) {
+      return sockets[i];
     }
-  );
+    
+    return null;
+  }
 }
-
-function broadcast(event, data) {
-  sockets.forEach(function (socket) {
-    socket.emit(event, data);
-  });
-}*/
 
 server.listen(process.env.PORT || 3000, process.env.IP || "0.0.0.0", function(){
   var addr = server.address();
   console.log("Chat server listening at", addr.address + ":" + addr.port);
 });
+
+// Set up the managers
+RoomManager.initialize(app, ensureAuthenticated, db, io);
+CharacterManager.initialize(app, ensureAuthenticated, db);
+PoseManager.initialize(app, ensureAuthenticated, db, io);
+WorldManager.initialize(app, ensureAuthenticated, db);
