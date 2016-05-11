@@ -29,11 +29,15 @@ var CharacterManager = new CharacterManagerConstructor();
 // Set up database connection
 var db = mysql.createPool({
   connectionLimit: 20,
-  host: "localhost",
-  user: "dupersaurus",
-  password: "vfr4esz.",
-  database: "c9"
+  host: process.env.DB_PATH,
+  user: process.env.DB_USER,
+  password: process.env.DB_PWD,
+  database: process.env.DATABASE
 });
+
+/*console.log(process.env.DB_PATH);
+console.log(process.env.DATABASE);
+console.log(process.env);*/
 
 /*db.connect(function(err){
   if(err){
@@ -143,24 +147,42 @@ app.post('/api/login',
 var sockets = [];
 
 io.on('connection', function (socket) {
-    sockets.push(socket);
+  sockets.push(socket);
 
-    socket.on('disconnect', function () {
-      sockets.splice(sockets.indexOf(socket), 1);
-    });
-
-    socket.on('enterroom', function (room) {
-      socket.join(room); 
-    });
-
-    socket.on('leaveroom', function (room) {
-      socket.leave(room); 
-    });
-
-    socket.on('update last seen', function (params) {
-      PoseManager.updateOwnerLastSeen(db, params.owner, params.room);
-    });
+  socket.on('disconnect', function () {
+    sockets.splice(sockets.indexOf(socket), 1);
   });
+
+  socket.on('enterroom', function (room) {
+    socket.join(room); 
+  });
+
+  socket.on('leaveroom', function (room) {
+    socket.leave(room); 
+  });
+
+  socket.on('update last seen', function (params) {
+    PoseManager.updateOwnerLastSeen(db, params.owner, params.room);
+  });
+  
+  if (socket.handshake.query != undefined) {
+    Users.findById(db, socket.handshake.query.user, function(err, user) {
+      if (!err) {
+        socket.user = user;
+      }
+    });
+  }
+});
+
+function getSocketForUserId(id) {
+  for (var i = 0; i < sockets.length; i++) {
+    if (sockets[i].user && sockets[i].user.id == id) {
+      return sockets[i];
+    }
+    
+    return null;
+  }
+}
 
 server.listen(process.env.PORT || 3000, process.env.IP || "0.0.0.0", function(){
   var addr = server.address();
