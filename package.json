@@ -1,0 +1,21 @@
+{
+  "name": "WUSH",
+  "version": "0.1.0",
+  "description": "A web-based MSUH-like environment.",
+  "main": "server.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dupersaurus/wush.git"
+  },
+  "author": "Jason DuPertuis <dupersaurus@gmail.com>",
+  "dependencies": {
+    "async": "~0.2.8",
+    "express": "~3.2.4",
+    "socket.io": "~0.9.14",
+    "connect-ensure-login": "~0.1.1",
+    "mysql": "~2.9.0",
+    "passport": "~0.3.2",
+    "passport-local": "~1.0.0",
+    "passport-hash": "~0.6.0"
+  }
+}
