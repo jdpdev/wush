@@ -57,6 +57,7 @@ wushApp.config(function($routeProvider, $locationProvider) {
 // Main app controller
 wushApp.controller("wushController", function($scope, $cookies, $controller, $route) {
     this.userInfo = null;
+    this.socket = null;
     
     this.getContrastColor = function(hex) {
         return hexToLuminosity(hex) >= 0.5 ? "#000" : "#fff";
@@ -66,6 +67,10 @@ wushApp.controller("wushController", function($scope, $cookies, $controller, $ro
     this.setUserInfo = function(user) {
         this.userInfo = user;
         $cookies.putObject("wushUserInfo", this.userInfo);
+        
+        if (this.socket == null) {
+            this.setupSocket();
+        }
     }
     
     this.getUserInfo = function() {
@@ -80,25 +85,27 @@ wushApp.controller("wushController", function($scope, $cookies, $controller, $ro
         return this.socket;
     }
     
-    // Set up the socket connection
-    /* global io */
-    this.socket = io.connect();
-    
-    // Connection successful
-    this.socket.on('connect', function () {
-        //console.log("socket connection");
-    });
-    
-    // Notification of a new pose in a room not being viewed
-    this.socket.on('distancepose', function (info) {
-        console.log("distancepose: " + info);
-    });
-    
-    // Notification of new pose in the same room
-    this.socket.on('newpose', function (pose) {
-        //console.log(pose);
-        $route.current.scope.room.receiveNewPose(pose);
-    });
+    this.setupSocket = function() {
+        // Set up the socket connection
+        /* global io */
+        this.socket = io.connect("", {query: "user=" + this.userInfo.id});
+        
+        // Connection successful
+        this.socket.on('connect', function () {
+            console.log("socket connection");
+        });
+        
+        // Notification of a new pose in a room not being viewed
+        this.socket.on('distancepose', function (info) {
+            console.log("distancepose: " + info);
+        });
+        
+        // Notification of new pose in the same room
+        this.socket.on('newpose', function (pose) {
+            //console.log(pose);
+            $route.current.scope.room.receiveNewPose(pose);
+        });   
+    }
 });
 
 function hexToRgb(hex) {

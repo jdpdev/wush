@@ -1,6 +1,6 @@
 {
   "name": "WUSH",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A web-based MSUH-like environment.",
   "main": "server.js",
   "repository": {
@@ -16,6 +16,6 @@
     "mysql": "~2.9.0",
     "passport": "~0.3.2",
     "passport-local": "~1.0.0",
-    "passport-hash": "~0.6.0"
+    "bcrypt": "^0.8.6"
   }
 }
