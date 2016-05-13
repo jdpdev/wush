@@ -17,20 +17,28 @@ Users.prototype.list = function(db, res) {
 }
 
 Users.prototype.create = function(db, req, res) {
-    var passwordHash = require('password-hash');
-    var hashedPassword = passwordHash.generate(req.body.password);
+    //var passwordHash = require('password-hash');
+    var hashedPassword; //= passwordHash.generate(req.body.password);
     
-    var query = "INSERT INTO users SET ?";
-    var inputs = {name: req.body.username, password: hashedPassword, email: req.body.email};
-    
-    var request = db.query(query, inputs, function(err, rows, fields) {
+    var bcrypt = require('bcrypt');
+    bcrypt.hash(req.body.password, 8, function(err, hash) {
         if (err) {
             res.json({success: false, authenticated: false, error: err});
-        } else {
-            res.json({success: true, authenticated: false});
+            return;
         }
         
-        // 1062 duplicate errno
+        var query = "INSERT INTO users SET ?";
+        var inputs = {name: req.body.username, password: hash, email: req.body.email};
+        
+        var request = db.query(query, inputs, function(err, rows, fields) {
+            if (err) {
+                res.json({success: false, authenticated: false, error: err});
+            } else {
+                res.json({success: true, authenticated: false});
+            }
+            
+            // 1062 duplicate errno
+        });
     });
 }
 
@@ -70,8 +78,11 @@ Users.prototype.findById = function(db, id, verify) {
 
 // Returns if a password matches a hased password
 Users.prototype.verifyPassword = function(password) {
-    var passwordHash = require('password-hash');
-    return passwordHash.verify(password, this.password);
+    //var passwordHash = require('password-hash');
+    //return passwordHash.verify(password, this.password);
+    
+    var bcrypt = require('bcrypt');
+    return bcrypt.compareSync(password, this.password);
 }
 
 Users.prototype.populate = function(row) {
