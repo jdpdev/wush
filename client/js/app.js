@@ -1,5 +1,5 @@
 /* global angular */
-var wushApp = angular.module("wushApp", ["ngRoute", 'ui.bootstrap', "ngCookies"]);
+var wushApp = angular.module("wushApp", ["ngRoute", 'ui.bootstrap', "ngCookies", "angular-page-visibility"]);
 
 // configure our routes
 wushApp.config(function($routeProvider, $locationProvider) {
@@ -55,9 +55,17 @@ wushApp.config(function($routeProvider, $locationProvider) {
 });
 
 // Main app controller
-wushApp.controller("wushController", function($scope, $cookies, $controller, $route) {
+wushApp.controller("wushController", function($scope, $rootScope, $cookies, $controller, $route, $pageVisibility) {
+    var self = this;
+
     this.userInfo = null;
     this.socket = null;
+    this._hasFocus = true;
+
+    this._baseTitle = "WUSHapp";
+
+    this._unseenQueue = {};
+    this._queueSize = 0;
     
     this.getContrastColor = function(hex) {
         return hexToLuminosity(hex) >= 0.5 ? "#000" : "#fff";
@@ -98,14 +106,78 @@ wushApp.controller("wushController", function($scope, $cookies, $controller, $ro
         // Notification of a new pose in a room not being viewed
         this.socket.on('distancepose', function (info) {
             console.log("distancepose: " + info);
+            self.queueActivity();
         });
         
         // Notification of new pose in the same room
         this.socket.on('newpose', function (pose) {
             //console.log(pose);
             $route.current.scope.room.receiveNewPose(pose);
+            self.queueActivity();
         });   
     }
+
+    this.hasFocus = function() {
+        return this._hasFocus;
+    }
+
+    /**
+     * If app is not focus, flash the tab
+     * @return {[type]} [description]
+     */
+    this.queueActivity = function(roomId) {
+        if (!this.hasFocus()) {
+            if (this._unseenQueue[roomId]) {
+                this._unseenQueue[roomId]++;
+            } else {
+                this._unseenQueue[roomId] = 1;
+            }
+
+            this._queueSize = 0;
+
+            for (var key in this._unseenQueue) {
+                this._queueSize += parseInt(this._unseenQueue[key]);
+            }
+
+            document.title = "(" + this._queueSize + ") " + this._baseTitle;
+        }
+    }
+
+    this.clearQueue = function() {
+        this._unseenQueue = {};
+        this._queueSize = 0;
+    }
+
+    this.getQueueSize = function() {
+        return this._queueSize;
+    }
+
+    document.title = this._baseTitle;
+
+    document.addEventListener("visibilitychange", function() { 
+        self._hasFocus = !document.hidden;
+
+        if (self._hasFocus) {
+            document.title = self._baseTitle;
+            self.clearQueue();
+        }
+    });
+
+    // Initialization
+    /*$pageVisibility.$on('pageFocused', function(){
+        // page is focused
+        console.log("pageFocused");
+        this._hasFocus = true;
+        document.title = this._baseTitle;
+    });
+
+    $pageVisibility.$on('pageBlurred', function(){
+        // page is blurred
+        console.log("pageBlurred");
+        this._hasFocus = false;
+
+        this.queueActivity();
+    });*/
 });
 
 function hexToRgb(hex) {
