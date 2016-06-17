@@ -7,6 +7,7 @@ var http = require('http');
 var path = require('path');
 var mysql = require("mysql");
 var users = require("./users");
+var email = require("./email");
 
 var async = require('async');
 var socketio = require('socket.io');
@@ -26,13 +27,21 @@ var PoseManager = new PoseManagerConstructor();
 var CharacterManagerConstructor = require("./characterManager");
 var CharacterManager = new CharacterManagerConstructor();
 
+/*var manager = new email();
+manager.sendMissedMessage({name: "WUSH User", email: "gallahad@me.com"});*/
+
+// Load database settings
+var fs = require("fs");
+var contents = fs.readFileSync("server-config.json");
+var serverConfig = JSON.parse(contents);
+
 // Set up database connection
 var db = mysql.createPool({
   connectionLimit: 20,
-  host: process.env.DB_PATH,
-  user: process.env.DB_USER,
-  password: process.env.DB_PWD,
-  database: process.env.DATABASE
+  host: serverConfig.db.host,
+  user: serverConfig.db.user,
+  password: serverConfig.db.password,
+  database: serverConfig.db.name
 });
 
 /*console.log(process.env.DB_PATH);
@@ -184,7 +193,7 @@ function getSocketForUserId(id) {
   }
 }
 
-server.listen(process.env.PORT || 3000, process.env.IP || "0.0.0.0", function(){
+server.listen(serverConfig.socket.port || 3000, serverConfig.socket.ip || "0.0.0.0", function(){
   var addr = server.address();
   console.log("Chat server listening at", addr.address + ":" + addr.port);
 });
