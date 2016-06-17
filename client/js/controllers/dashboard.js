@@ -5,55 +5,61 @@ wushApp.controller("profileController", function($scope, $http, $location, $uibM
     this.username = "";
     
     // List of the user's characters
-    this.characters = [];
+    this.characters = null;
     
     // List of new poses
-    this.newPoses = [];
-    
-    // Request profile info
-    $http.get("/api/users/info", {withCredentials: true}).then(
-        
-        // Success
-        function(response) {
-            if (response.data.success) {
-                console.log("success");  
-                self.username = response.data.name;
-                self.characters = response.data.characters;
-                
-                /* global app */
-                $scope.app.setUserInfo({name: response.data.name, id: response.data.id, characters: self.characters});
-            } else {
-                console.log("data error");
-                
-                if (!response.data.authenticated) {
-                    $location.path("/login");
+    this.newPoses = null;
+
+    this.getUserInfo = function() {
+        // Request profile info
+        $http.get("/api/users/info", {withCredentials: true}).then(
+            
+            // Success
+            function(response) {
+                if (response.data.success) {
+                    console.log("success");  
+                    self.username = response.data.name;
+                    self.characters = response.data.characters;
+                    
+                    /* global app */
+                    $scope.app.setUserInfo({name: response.data.name, id: response.data.id, characters: self.characters});
+
+                    self.getLastSeenPoses();
+                } else {
+                    console.log("data error");
+                    
+                    if (!response.data.authenticated) {
+                        $location.path("/login");
+                    }
                 }
+            },
+            
+            // Error
+            function(response) {
+                console.log("server error");
             }
-        },
-        
-        // Error
-        function(response) {
-            console.log("server error");
-        }
-    )
-    
-    // Last poses
-    $http.get("/api/character/lastseen", {withCredentials: true, params: {id: $scope.app.getUserInfo().id}}).then(
-        
-        // Success
-        function (response) {
-            if (response.data.success) {
-                self.newPoses = response.data.poses;
-            } else {
+        );
+    }
+
+    this.getLastSeenPoses = function() {
+        // Last poses
+        $http.get("/api/character/lastseen", {withCredentials: true, params: {id: $scope.app.getUserInfo().id}}).then(
+            
+            // Success
+            function (response) {
+                if (response.data.success) {
+                    self.newPoses = response.data.poses;
+                } else {
+                    console.log(response);
+                }
+            },
+            
+            // Error
+            function (response) {
                 console.log(response);
             }
-        },
-        
-        // Error
-        function (response) {
-            console.log(response);
-        }
-    );
+        );
+    }
     
     this.jumpToRoom = function(roomId) {
         $location.path("/room/" + roomId);
@@ -76,6 +82,8 @@ wushApp.controller("profileController", function($scope, $http, $location, $uibM
               }
             });
     }
+
+    this.getUserInfo();
 });
 
 wushApp.controller("createCharacterController", function($scope, $http, $uibModalInstance, $location, app) {
