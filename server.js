@@ -152,6 +152,11 @@ app.post('/api/login',
                                    failureFlash: true })
 );
 
+app.get("/api/logout", function(req, res) {
+  req.logout();
+  res.redirect("/");
+});
+
 // Set up the socket
 var sockets = [];
 

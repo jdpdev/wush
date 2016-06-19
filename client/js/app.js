@@ -55,7 +55,7 @@ wushApp.config(function($routeProvider, $locationProvider) {
 });
 
 // Main app controller
-wushApp.controller("wushController", function($scope, $rootScope, $cookies, $controller, $route, $pageVisibility) {
+wushApp.controller("wushController", function($http, $scope, $rootScope, $cookies, $controller, $route, $pageVisibility, $location) {
     var self = this;
 
     this.userInfo = null;
@@ -69,6 +69,28 @@ wushApp.controller("wushController", function($scope, $rootScope, $cookies, $con
     
     this.getContrastColor = function(hex) {
         return hexToLuminosity(hex) >= 0.5 ? "#000" : "#fff";
+    }
+
+    /**
+     * Log out the current user
+     */
+    this.logout = function() {
+        if (!this.userInfo) {
+            return;
+        }
+
+        $http.get("/api/logout", {withCredentials: true}).then(
+            function(response) {
+                self.userInfo = null;
+                self.socket.disconnect();
+                $location.path("/login");
+            },
+
+            // Error
+            function(response) {
+                console.error(response);
+            }
+        );
     }
     
     /**

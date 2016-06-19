@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
     <link rel="stylesheet" href="/css/bootstrap-responsive.min.css">
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.css" />
+    <link rel="stylesheet" href="css/navbar.css" />
     
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.2/angular.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.2/angular-route.js"></script>
@@ -46,12 +47,13 @@
                     <span ng-show="app.getQueueSize() > 0" class="badge">{{app.getQueueSize()}}</span>
                   </a>
                 </li>
+                <li ng-show="app.userInfo"><a href="#/" ng-click="app.logout()"><i class="fa fa-power-off"></i> Log Out</a></li>
             </ul>
         </div>
       </nav>
 
-      <div class="alert alert-danger">
-        You do not have any characters to post with! Visit your <a href="#/">profile</a> to create your first character.
+      <div class="alert alert-danger" ng-show="app.userInfo && app.hasCharacters()">
+        <b><i class="fa fa-exclamation"></i></b> You do not have any characters to post with! Visit your <a href="#/">profile</a> to create your first character.
       </div>
     </header>
     
