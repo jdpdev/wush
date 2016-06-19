@@ -71,7 +71,13 @@ wushApp.controller("wushController", function($scope, $rootScope, $cookies, $con
         return hexToLuminosity(hex) >= 0.5 ? "#000" : "#fff";
     }
     
-    // Sets the information of the current user
+    /**
+     * Sers information about the current user. Expected information received from the server:
+     *     id - the id of the user
+     *     username - the login name of the user
+     *     characters - array of the user's characters
+     * @param {Object} user [description]
+     */
     this.setUserInfo = function(user) {
         this.userInfo = user;
         $cookies.putObject("wushUserInfo", this.userInfo);
@@ -81,6 +87,10 @@ wushApp.controller("wushController", function($scope, $rootScope, $cookies, $con
         }
     }
     
+    /**
+     * Returns the user info object
+     * @return {Object} [description]
+     */
     this.getUserInfo = function() {
         if (this.userInfo == null) {
             this.userInfo = $cookies.getObject("wushUserInfo");
@@ -88,11 +98,26 @@ wushApp.controller("wushController", function($scope, $rootScope, $cookies, $con
         
         return this.userInfo;
     }
+
+    /**
+     * Returns if the user has characters
+     * @return {Boolean} Whether the user has characters
+     */
+    this.hasCharacters = function() {
+        return this.userInfo != null && this.userInfo.characters && this.userInfo.characters.length > 0;
+    }
     
+    /**
+     * Returns the active socket connection to the server
+     * @return {[type]} [description]
+     */
     this.getSocket = function() {
         return this.socket;
     }
     
+    /**
+     * Setup socket connection with the server
+     */
     this.setupSocket = function() {
         // Set up the socket connection
         /* global io */
@@ -117,13 +142,16 @@ wushApp.controller("wushController", function($scope, $rootScope, $cookies, $con
         });   
     }
 
+    /**
+     * Returns whether the app has focus
+     * @return {Boolean} [description]
+     */
     this.hasFocus = function() {
         return this._hasFocus;
     }
 
     /**
      * If app is not focus, flash the tab
-     * @return {[type]} [description]
      */
     this.queueActivity = function(roomId) {
         if (!this.hasFocus()) {
@@ -180,6 +208,11 @@ wushApp.controller("wushController", function($scope, $rootScope, $cookies, $con
     });*/
 });
 
+/**
+ * Returns a hex color code to rbg values
+ * @param  {string} hex The hex color
+ * @return {Object}     The color as an object with members r, g, and b normalized to [0,255]
+ */
 function hexToRgb(hex) {
     var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     return result ? {
@@ -189,6 +222,11 @@ function hexToRgb(hex) {
     } : null;
 }
 
+/**
+ * Converts a hex color code to an approximate luminosity value
+ * @param  {string} hex The hex color
+ * @return {number}     An approximate luminosity value normalized to [0,1]
+ */
 function hexToLuminosity(hex) {
     var rgb = hexToRgb(hex);
     

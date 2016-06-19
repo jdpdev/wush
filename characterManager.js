@@ -62,6 +62,10 @@ CharacterManager.prototype.getLastSeenMessages = function(db, id) {
             } else {
                 var characters = [];
                 
+                if (rows.length == 0) {
+                    resolve([]);
+                }
+
                 for (var i = 0; i < rows.length; i++) {
                     characters.push("(p.room = " + db.escape(rows[i].room) + " and p.timestamp >= " + db.escape(rows[i].lastseen) + ")");
                 }
