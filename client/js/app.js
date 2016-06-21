@@ -60,6 +60,7 @@ wushApp.controller("wushController", function($http, $scope, $rootScope, $cookie
 
     this.userInfo = null;
     this.socket = null;
+    this._socketReady = false;
     this._hasFocus = true;
 
     this._baseTitle = "WUSHapp";
@@ -162,6 +163,7 @@ wushApp.controller("wushController", function($http, $scope, $rootScope, $cookie
         // Connection successful
         this.socket.on('connect', function () {
             console.log("socket connection");
+            self._socketReady = true;
         });
         
         // Notification of a new pose in a room not being viewed
@@ -183,6 +185,10 @@ wushApp.controller("wushController", function($http, $scope, $rootScope, $cookie
                 self.setMotd(motd.message);
             });
         });
+    }
+
+    this.isSocketReady = function() {
+        return this._socketReady;
     }
 
     /**
