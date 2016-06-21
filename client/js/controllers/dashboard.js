@@ -1,5 +1,5 @@
 /* global wushApp */
-wushApp.controller("profileController", function($scope, $http, $location, $uibModal) {
+wushApp.controller("profileController", function($scope, $http, $location, $uibModal, $sce) {
     var self = this;
     
     this.username = "";
@@ -9,6 +9,8 @@ wushApp.controller("profileController", function($scope, $http, $location, $uibM
     
     // List of new poses
     this.newPoses = null;
+
+    this._motdTemplate = "motd.html";
 
     this.getUserInfo = function() {
         // Request profile info
@@ -81,6 +83,16 @@ wushApp.controller("profileController", function($scope, $http, $location, $uibM
                 }
               }
             });
+    }
+
+    this.getMotd = function() {
+        /*if ($scope.app.getMotd()) {
+            return $sce.trustAsHtml("<div><b>Hello</b> world</div>");
+        } else {
+            return $sce.trustAsHtml("<div></div>");
+        }*/
+
+        return $scope.app.getMotd();
     }
 
     this.getUserInfo();

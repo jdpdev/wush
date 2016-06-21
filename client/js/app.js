@@ -1,5 +1,5 @@
 /* global angular */
-var wushApp = angular.module("wushApp", ["ngRoute", 'ui.bootstrap', "ngCookies", "angular-page-visibility"]);
+var wushApp = angular.module("wushApp", ["ngRoute", 'ui.bootstrap', "ngCookies", "angular-page-visibility", 'hc.marked']);
 
 // configure our routes
 wushApp.config(function($routeProvider, $locationProvider) {
@@ -55,7 +55,7 @@ wushApp.config(function($routeProvider, $locationProvider) {
 });
 
 // Main app controller
-wushApp.controller("wushController", function($http, $scope, $rootScope, $cookies, $controller, $route, $pageVisibility, $location) {
+wushApp.controller("wushController", function($http, $scope, $rootScope, $cookies, $controller, $route, $pageVisibility, $location, $sce) {
     var self = this;
 
     this.userInfo = null;
@@ -66,6 +66,16 @@ wushApp.controller("wushController", function($http, $scope, $rootScope, $cookie
 
     this._unseenQueue = {};
     this._queueSize = 0;
+
+    this._motd = null;
+
+    this.getMotd = function() {
+        return this._motd;
+    }
+
+    this.setMotd = function(motd) {
+        this._motd = motd;
+    }
     
     this.getContrastColor = function(hex) {
         return hexToLuminosity(hex) >= 0.5 ? "#000" : "#fff";
@@ -126,7 +136,11 @@ wushApp.controller("wushController", function($http, $scope, $rootScope, $cookie
      * @return {Boolean} Whether the user has characters
      */
     this.hasCharacters = function() {
-        return this.userInfo != null && this.userInfo.characters && this.userInfo.characters.length > 0;
+        if (this.userInfo == null) {
+            return true;
+        }
+
+        return this.userInfo.characters && this.userInfo.characters.length > 0;
     }
     
     /**
@@ -162,6 +176,13 @@ wushApp.controller("wushController", function($http, $scope, $rootScope, $cookie
             $route.current.scope.room.receiveNewPose(pose);
             self.queueActivity();
         });   
+
+        this.socket.on("motd", function(motd) {
+            //self._motd = motd.message;
+            $scope.$apply(function() {
+                self.setMotd(motd.message);
+            });
+        });
     }
 
     /**
