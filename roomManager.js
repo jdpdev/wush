@@ -1,4 +1,5 @@
 var Room = require("./room");
+var Character = require("./character");
 var WorldManagerReq = require("./worldManager");
 var WorldManager = new WorldManagerReq();
 var PoseManager = require("./poseManager");
@@ -120,6 +121,36 @@ RoomManager.prototype.loadRoomMembers = function(req, res, db) {
     })
     .catch(function(error) {
         res.json({success: false, authenticated: true, error: error});
+    });
+};
+
+/**
+ * Load the members for a set of rooms
+ * @param  {[type]} db      The database pool
+ * @param  {Array} roomIds  Array of room ids to get the members of
+ * @return {Object}         Promise that returns object with arrays of characters mapped to room ids
+ */
+RoomManager.prototype.loadRoomMembersBatch = function(db, roomIds) {
+    var query = "SELECT c.*, l.room FROM locations l LEFT JOIN characters c on c.ID = l.character WHERE l.room in (" + roomIds.join(",") + ")";
+
+    return new Promise(function(resolve, reject) {
+        db.query(query, {}, function(err, rows, fields) {
+            if (err) {
+                reject(err);
+            } else {
+                var rooms = {};
+
+                for (var i = 0; i < rows.length; i++) {
+                    if (!rooms[rows[i].room]) {
+                        rooms[rows[i].room] = [];
+                    }
+
+                    rooms[rows[i].room] = new Character(rows[i]);
+                }
+
+                resolve(rooms);
+            }
+        })
     });
 };
 

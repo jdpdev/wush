@@ -3,7 +3,7 @@ var Pose = function(row) {
     this.room = row.room;
     this.character = row.character;
     this.characterName = row.characterName;
-    this.timestamp = row.timestamp;
+    this.timestamp = new Date(row.timestamp);
     this.text = row.text;
 }
 
