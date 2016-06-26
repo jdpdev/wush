@@ -34,6 +34,9 @@ var fs = require("fs");
 var contents = fs.readFileSync("server-config.json");
 var serverConfig = JSON.parse(contents);
 
+var EmailManager = new email(serverConfig.email);
+var PoseNotifier = require("./pose-notifier");
+
 // Set up database connection
 var db = mysql.createPool({
   connectionLimit: 10,
@@ -42,6 +45,9 @@ var db = mysql.createPool({
   password: serverConfig.db.password,
   database: serverConfig.db.name
 });
+
+var _poseNotifier = new PoseNotifier(EmailManager, PoseManager, RoomManager, db);
+_poseNotifier.start();
 
 // set up passport
 var passport = require('passport')
@@ -71,11 +77,6 @@ passport.deserializeUser(function(id, done) {
     done(err, user);
   });
 });
-
-var EmailManager = new email(serverConfig.email);
-var PoseNotifier = require("./pose-notifier");
-_poseNotifier = new PoseNotifier(EmailManager, PoseManager, RoomManager, db);
-_poseNotifier.start();
 
 //
 // ## SimpleServer `SimpleServer(obj)`
@@ -208,7 +209,12 @@ server.listen(serverConfig.socket.port || 3000, serverConfig.socket.ip || "0.0.0
 });
 
 // Set up the managers
-RoomManager.initialize(app, ensureAuthenticated, db, io);
-CharacterManager.initialize(app, ensureAuthenticated, db);
-PoseManager.initialize(app, ensureAuthenticated, db, io);
-WorldManager.initialize(app, ensureAuthenticated, db);
+RoomManager.initialize(app, ensureAuthenticated, db, io)
+.then(function(success) {
+    CharacterManager.initialize(app, ensureAuthenticated, db);
+    PoseManager.initialize(app, ensureAuthenticated, db, io);
+    WorldManager.initialize(app, ensureAuthenticated, db);
+})
+.catch(function(error) {
+    console.error(error);
+});

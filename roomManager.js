@@ -32,6 +32,16 @@ RoomManager.prototype.initialize = function(app, ensureAuthenticated, db, io) {
     app.post("/api/room/relocate", ensureAuthenticated, function(req, res) {
       self.relocateCharacter(req, res, db);
     });
+
+    return new Promise(function(resolve, reject) {
+        self.loadAllRooms(db)
+        .then(function(success) {
+            resolve(success);
+        })
+        .catch(function(error) {
+            reject(error);
+        });
+    });
 }
 
 /**
@@ -106,6 +116,50 @@ RoomManager.prototype.loadRoom = function(db, id) {
     });
 }
 
+/**
+ * Load and cache all of the rooms
+ * @param db Database connection
+ * @return Promise that sends the room as a parameter on success
+ */
+RoomManager.prototype.loadAllRooms = function(db) {
+    var self = this;
+    
+    return new Promise(function(resolve, reject) {
+        var query = "SELECT * " + 
+                    "FROM room ";
+        var inputs = {};
+        
+        db.query(query, inputs, function(err, rows, fields) {
+            if (err) {
+                reject(err);
+            }
+            
+            // Load the room and its associated world
+            else {
+                for (var i = 0 ; i < rows.length; i++) {
+                    var room = new Room(rows[i]);
+                    self.roomCache[room.id] = room;
+                }
+
+                resolve(true);
+            }
+        });
+    });
+}
+
+/**
+ * Directly load a room from the cache
+ * @param  {number} id The id of the room to load
+ * @return {Room}    The room, or null on error
+ */
+RoomManager.prototype.loadCachedRoom = function(id) {
+    if (!this.roomCache[id]) {
+        return null;
+    } else {
+        return {room: this.roomCache[id], world: WorldManager.loadCachedWorld(this.roomCache[id].worldId)};
+    }
+}
+
 RoomManager.prototype.loadRoomMembers = function(req, res, db) {
     this.loadRoom(db, req.query.id)
     .then(function(info) {
@@ -131,7 +185,7 @@ RoomManager.prototype.loadRoomMembers = function(req, res, db) {
  * @return {Object}         Promise that returns object with arrays of characters mapped to room ids
  */
 RoomManager.prototype.loadRoomMembersBatch = function(db, roomIds) {
-    var query = "SELECT c.*, l.room FROM locations l LEFT JOIN characters c on c.ID = l.character WHERE l.room in (" + roomIds.join(",") + ")";
+    var query = "SELECT c.*, l.room FROM locations l LEFT JOIN characters c on c.ID = l.character WHERE l.room in (" + roomIds.join(",") + ") and l.exittime is null";
 
     return new Promise(function(resolve, reject) {
         db.query(query, {}, function(err, rows, fields) {
@@ -145,7 +199,7 @@ RoomManager.prototype.loadRoomMembersBatch = function(db, roomIds) {
                         rooms[rows[i].room] = [];
                     }
 
-                    rooms[rows[i].room] = new Character(rows[i]);
+                    rooms[rows[i].room].push(new Character(rows[i]));
                 }
 
                 resolve(rooms);

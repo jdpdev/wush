@@ -33,7 +33,6 @@ PoseManager.prototype.loadAllSince = function(db, timestamp) {
                     "LEFT JOIN characters c " +
                     "   ON c.id = p.character " +
                     "WHERE p.timestamp >= " + db.escape(timestamp) + " " +
-                    //"   AND c.lastseen >= '" + db.escape(timestamp) + "' " +
                     "ORDER BY p.timestamp DESC";
         
         db.query(query, {}, function(err, rows, fields) {
