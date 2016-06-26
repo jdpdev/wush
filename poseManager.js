@@ -19,6 +19,43 @@ PoseManager.prototype.initialize = function(app, ensureAuthenticated, db, io) {
 }
 
 /**
+ * Loads a list of all poses made since a given timestamp
+ * @param db Database connection
+ * @param timestamp Time to get all poses after, in MySQL "Y-m-d H:i:s"
+ * @return Promise that sends a map of poses to room ids
+ */
+PoseManager.prototype.loadAllSince = function(db, timestamp) {
+    var self = this;
+    
+    return new Promise(function(resolve, reject) {
+        var query = "SELECT p.*, c.id as characterId, c.name as characterName, c.owner as ownerId, c.lastseen " + 
+                    "FROM poses p " +
+                    "LEFT JOIN characters c " +
+                    "   ON c.id = p.character " +
+                    "WHERE p.timestamp >= " + db.escape(timestamp) + " " +
+                    "ORDER BY p.timestamp DESC";
+        
+        db.query(query, {}, function(err, rows, fields) {
+            if (err) {
+                reject(err);
+            } else {
+                var poses = {};
+                
+                for (var i = 0; i < rows.length; i++) {
+                    if (!poses[rows[i].room]) {
+                        poses[rows[i].room] = [];
+                    }
+
+                    poses[rows[i].room].push(new Pose(rows[i]));
+                }
+                
+                resolve(poses);
+            }
+        });
+    });
+}
+
+/**
  * Loads a list of recent poses from a room since a certain time
  * @param db Database connection
  * @param id Id of the room to get the poses from
@@ -35,7 +72,7 @@ PoseManager.prototype.loadFromRoomSince = function(db, id, timestamp, character)
                     "LEFT JOIN characters c " +
                     "   ON c.id = p.character " +
                     "WHERE p.room = " + db.escapeId(id) + " " +
-                    "   AND p.timestamp >= " + db.escape(timestamp) + " " +
+                    "   AND p.timestamp >= '" + db.escape(timestamp) + "' " +
                     "ORDER BY p.timestamp DESC";
         
         db.query(query, {}, function(err, rows, fields) {

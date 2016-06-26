@@ -1,3 +1,5 @@
+var User = require("./user");
+
 var Users = function() {
     
 }
@@ -56,6 +58,7 @@ Users.prototype.findByName = function(db, name, verify) {
         /* global User */
         var user = new Users();
         user.populate(rows[0]);
+        //var user = new User(rows[0]);
         verify(err, user);
     });
 }
@@ -74,6 +77,25 @@ Users.prototype.findById = function(db, id, verify) {
         user.populate(rows[0]);
         verify(err, user);
     });
+}
+
+Users.prototype.login = function(password, db) {
+    if (this.verifyPassword(password)) {
+        var query = "UPDATE users SET lastlogin=NOW() WHERE ?";
+        var params = {id: this.id};
+        
+        var dbquery = db.query(query, params, function(err, result) {
+            if (err) {
+                //reject(err);
+            } else {
+                //resolve(result.insertId);
+            }
+        });
+
+        return true;
+    }
+
+    return false;
 }
 
 // Returns if a password matches a hased password

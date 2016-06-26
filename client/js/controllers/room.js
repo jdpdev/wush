@@ -121,7 +121,11 @@ wushApp.controller("roomController", function($scope, $http, $route, $routeParam
     });
     
     this.enterRoom = function() {
-        $scope.app.getSocket().emit("enterroom", this.info.id);
+        if ($scope.app.isSocketReady()) {
+            $scope.app.getSocket().emit("enterroom", this.info.id);
+        } else {
+            setTimeout(this.enterRoom, 1000);
+        }
     }
     
     this.leaveRoom = function() {
@@ -195,6 +199,10 @@ wushApp.controller("roomController", function($scope, $http, $route, $routeParam
                 console.log(response);
             }
         );
+    }
+
+    this.isUserCharacter = function(char) {
+        return $scope.app.getUserInfo().id == char.owner;
     }
     
     this.enterRoom();

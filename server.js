@@ -27,34 +27,27 @@ var PoseManager = new PoseManagerConstructor();
 var CharacterManagerConstructor = require("./characterManager");
 var CharacterManager = new CharacterManagerConstructor();
 
-/*var manager = new email();
-manager.sendMissedMessage({name: "WUSH User", email: "gallahad@me.com"});*/
+var _currentMotd = null;
 
 // Load database settings
 var fs = require("fs");
 var contents = fs.readFileSync("server-config.json");
 var serverConfig = JSON.parse(contents);
 
+var EmailManager = new email(serverConfig.email);
+var PoseNotifier = require("./pose-notifier");
+
 // Set up database connection
 var db = mysql.createPool({
-  connectionLimit: 20,
+  connectionLimit: 10,
   host: serverConfig.db.host,
   user: serverConfig.db.user,
   password: serverConfig.db.password,
   database: serverConfig.db.name
 });
 
-/*console.log(process.env.DB_PATH);
-console.log(process.env.DATABASE);
-console.log(process.env);*/
-
-/*db.connect(function(err){
-  if(err){
-    console.log(err.stack);
-    return;
-  }
-  console.log('Connection established');
-});*/
+var _poseNotifier = new PoseNotifier(EmailManager, PoseManager, RoomManager, db);
+_poseNotifier.start();
 
 // set up passport
 var passport = require('passport')
@@ -67,7 +60,7 @@ passport.use(new LocalStrategy(
       if (!user) {
         return done(null, false);
       }
-      if (!user.verifyPassword(password)) {
+      if (!user.login(password, db)) {
         return done(null, false);
       }
       return done(null, user);
@@ -131,7 +124,7 @@ function ensureAuthenticated(req, res, next) {
 }
 
 app.get("/api/users/info", ensureAuthenticated, function(req, res) {
-  console.log("/users/info (" + req.isAuthenticated() + ")");
+  //console.log("/users/info (" + req.isAuthenticated() + ")");
   
   if (req.isAuthenticated()) {
     req.user.getProfileDetails(db, function(err, info) {
@@ -151,6 +144,11 @@ app.post('/api/login',
                                    failureRedirect: '/login.html?error=Login failed',
                                    failureFlash: true })
 );
+
+app.get("/api/logout", function(req, res) {
+  req.logout();
+  res.redirect("/");
+});
 
 // Set up the socket
 var sockets = [];
@@ -178,6 +176,18 @@ io.on('connection', function (socket) {
     Users.findById(db, socket.handshake.query.user, function(err, user) {
       if (!err) {
         socket.user = user;
+
+        // TODO handle this in a manager
+        if (_currentMotd) {
+          socket.emit("motd", {message: _currentMotd});
+        } else {
+          var request = db.query("select message from motd order by date desc limit 0,1", {}, function(err, rows, fields) {
+            if (!err || rows.length > 0) {
+              _currentMotd = rows[0].message;
+              socket.emit("motd", {message: rows[0].message});
+            }
+          });
+        }
       }
     });
   }
@@ -199,7 +209,12 @@ server.listen(serverConfig.socket.port || 3000, serverConfig.socket.ip || "0.0.0
 });
 
 // Set up the managers
-RoomManager.initialize(app, ensureAuthenticated, db, io);
-CharacterManager.initialize(app, ensureAuthenticated, db);
-PoseManager.initialize(app, ensureAuthenticated, db, io);
-WorldManager.initialize(app, ensureAuthenticated, db);
+RoomManager.initialize(app, ensureAuthenticated, db, io)
+.then(function(success) {
+    CharacterManager.initialize(app, ensureAuthenticated, db);
+    PoseManager.initialize(app, ensureAuthenticated, db, io);
+    WorldManager.initialize(app, ensureAuthenticated, db);
+})
+.catch(function(error) {
+    console.error(error);
+});

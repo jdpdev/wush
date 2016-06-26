@@ -1,22 +1,7 @@
+# wush
 
-     ,-----.,--.                  ,--. ,---.   ,--.,------.  ,------.
-    '  .--./|  | ,---. ,--.,--. ,-|  || o   \  |  ||  .-.  \ |  .---'
-    |  |    |  || .-. ||  ||  |' .-. |`..'  |  |  ||  |  \  :|  `--, 
-    '  '--'\|  |' '-' ''  ''  '\ `-' | .'  /   |  ||  '--'  /|  `---.
-     `-----'`--' `---'  `----'  `---'  `--'    `--'`-------' `------'
-    ----------------------------------------------------------------- 
+**WUSH** (*WUH-shh*; IPA /wʌʃ/) is a terrible word and acronym for "Web-User Shared Hallucination", ripped-off from the famous (and better) MUSH, or "Multi-User Shared Hallucination".
 
+WUSH comes from a desire to capture the essense of the MUSH experience for a world that doesn't have the time commitment. It's inspired from the musings of a group of friends forged by their textual adventures, but stymied by adult life. They were all too busy to play the old way, but were unsatisified by the limitations of traditional message boards.
 
-Welcome to your Node.js project on Cloud9 IDE!
-
-This chat example showcases how to use `socket.io` with a static `express` server.
-
-## Running the server
-
-1) Open `server.js` and start the app by clicking on the "Run" button in the top menu.
-
-2) Alternatively you can launch the app from the Terminal:
-
-    $ node server.js
-
-Once the server is running, open the project in the shape of 'https://projectname-username.c9.io/'. As you enter your name, watch the Users list (on the left) update. Once you press Enter or Send, the message is shared with all connected clients.
+WUSH attempts to find that middle ground. It emulates the classic MU* feel of moving your character into a room to play with other characters, but in the come-back-when-you-can asynchronicity of a message board.

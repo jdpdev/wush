@@ -1,5 +1,5 @@
 /* global angular */
-var wushApp = angular.module("wushApp", ["ngRoute", 'ui.bootstrap', "ngCookies", "angular-page-visibility"]);
+var wushApp = angular.module("wushApp", ["ngRoute", 'ui.bootstrap', "ngCookies", "angular-page-visibility", 'hc.marked']);
 
 // configure our routes
 wushApp.config(function($routeProvider, $locationProvider) {
@@ -55,23 +55,62 @@ wushApp.config(function($routeProvider, $locationProvider) {
 });
 
 // Main app controller
-wushApp.controller("wushController", function($scope, $rootScope, $cookies, $controller, $route, $pageVisibility) {
+wushApp.controller("wushController", function($http, $scope, $rootScope, $cookies, $controller, $route, $pageVisibility, $location, $sce) {
     var self = this;
 
     this.userInfo = null;
     this.socket = null;
+    this._socketReady = false;
     this._hasFocus = true;
 
     this._baseTitle = "WUSHapp";
 
     this._unseenQueue = {};
     this._queueSize = 0;
+
+    this._motd = null;
+
+    this.getMotd = function() {
+        return this._motd;
+    }
+
+    this.setMotd = function(motd) {
+        this._motd = motd;
+    }
     
     this.getContrastColor = function(hex) {
         return hexToLuminosity(hex) >= 0.5 ? "#000" : "#fff";
     }
+
+    /**
+     * Log out the current user
+     */
+    this.logout = function() {
+        if (!this.userInfo) {
+            return;
+        }
+
+        $http.get("/api/logout", {withCredentials: true}).then(
+            function(response) {
+                self.userInfo = null;
+                self.socket.disconnect();
+                $location.path("/login");
+            },
+
+            // Error
+            function(response) {
+                console.error(response);
+            }
+        );
+    }
     
-    // Sets the information of the current user
+    /**
+     * Sers information about the current user. Expected information received from the server:
+     *     id - the id of the user
+     *     username - the login name of the user
+     *     characters - array of the user's characters
+     * @param {Object} user [description]
+     */
     this.setUserInfo = function(user) {
         this.userInfo = user;
         $cookies.putObject("wushUserInfo", this.userInfo);
@@ -81,6 +120,10 @@ wushApp.controller("wushController", function($scope, $rootScope, $cookies, $con
         }
     }
     
+    /**
+     * Returns the user info object
+     * @return {Object} [description]
+     */
     this.getUserInfo = function() {
         if (this.userInfo == null) {
             this.userInfo = $cookies.getObject("wushUserInfo");
@@ -88,11 +131,30 @@ wushApp.controller("wushController", function($scope, $rootScope, $cookies, $con
         
         return this.userInfo;
     }
+
+    /**
+     * Returns if the user has characters
+     * @return {Boolean} Whether the user has characters
+     */
+    this.hasCharacters = function() {
+        if (this.userInfo == null) {
+            return true;
+        }
+
+        return this.userInfo.characters && this.userInfo.characters.length > 0;
+    }
     
+    /**
+     * Returns the active socket connection to the server
+     * @return {[type]} [description]
+     */
     this.getSocket = function() {
         return this.socket;
     }
     
+    /**
+     * Setup socket connection with the server
+     */
     this.setupSocket = function() {
         // Set up the socket connection
         /* global io */
@@ -101,6 +163,7 @@ wushApp.controller("wushController", function($scope, $rootScope, $cookies, $con
         // Connection successful
         this.socket.on('connect', function () {
             console.log("socket connection");
+            self._socketReady = true;
         });
         
         // Notification of a new pose in a room not being viewed
@@ -115,15 +178,29 @@ wushApp.controller("wushController", function($scope, $rootScope, $cookies, $con
             $route.current.scope.room.receiveNewPose(pose);
             self.queueActivity();
         });   
+
+        this.socket.on("motd", function(motd) {
+            //self._motd = motd.message;
+            $scope.$apply(function() {
+                self.setMotd(motd.message);
+            });
+        });
     }
 
+    this.isSocketReady = function() {
+        return this._socketReady;
+    }
+
+    /**
+     * Returns whether the app has focus
+     * @return {Boolean} [description]
+     */
     this.hasFocus = function() {
         return this._hasFocus;
     }
 
     /**
      * If app is not focus, flash the tab
-     * @return {[type]} [description]
      */
     this.queueActivity = function(roomId) {
         if (!this.hasFocus()) {
@@ -180,6 +257,11 @@ wushApp.controller("wushController", function($scope, $rootScope, $cookies, $con
     });*/
 });
 
+/**
+ * Returns a hex color code to rbg values
+ * @param  {string} hex The hex color
+ * @return {Object}     The color as an object with members r, g, and b normalized to [0,255]
+ */
 function hexToRgb(hex) {
     var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     return result ? {
@@ -189,6 +271,11 @@ function hexToRgb(hex) {
     } : null;
 }
 
+/**
+ * Converts a hex color code to an approximate luminosity value
+ * @param  {string} hex The hex color
+ * @return {number}     An approximate luminosity value normalized to [0,1]
+ */
 function hexToLuminosity(hex) {
     var rgb = hexToRgb(hex);
     

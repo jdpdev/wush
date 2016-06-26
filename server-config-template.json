@@ -9,5 +9,13 @@
 	"socket": {
 		"ip": "127.0.0.1",
 		"port": 3000
+	},
+
+	"email": {
+		"send": true,
+		"host": "",
+		"port": ,
+		"user": "",
+		"password": ""
 	}
 }

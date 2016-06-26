@@ -54,6 +54,14 @@ WorldManager.prototype.loadWorld = function(db, id) {
     });
 }
 
+WorldManager.prototype.loadCachedWorld = function(id) {
+    if (this.worldCache[id]) {
+        return this.worldCache[id];
+    } else {
+        return null;
+    }
+}
+
 WorldManager.prototype.sendWorldList = function(req, res, db) {
     this.getWorldList(db)
     .then(function(worlds) {

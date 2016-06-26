@@ -3,6 +3,7 @@ var Character = function(row) {
     this.owner = row.owner;
     this.name = row.name;
     this.description = row.description;
+    this.lastseen = new Date(row.lastseen);
 }
 
 Character.prototype.updateDescription = function(db, description) {
