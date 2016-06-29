@@ -1,6 +1,6 @@
 {
   "name": "WUSH",
-  "version": "0.3",
+  "version": "0.3.0",
   "description": "A web-based MSUH-like environment.",
   "main": "server.js",
   "repository": {
@@ -23,5 +23,8 @@
     "passport-local": "~1.0.0",
     "restler": "^3.4.0",
     "socket.io": "~0.9.14"
+  },
+  "devDependencies": {
+    "nodemailer-mailgun-transport": "^1.2.0"
   }
 }

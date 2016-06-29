@@ -31,7 +31,7 @@ var _currentMotd = null;
 
 // Load database settings
 var fs = require("fs");
-var contents = fs.readFileSync("server-config.json");
+var contents = fs.readFileSync("config/server-config.json");
 var serverConfig = JSON.parse(contents);
 
 var EmailManager = new email(serverConfig.email);

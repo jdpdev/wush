@@ -154,7 +154,7 @@ PoseNotifier.prototype.sendPoses = function(poseList) {
 					continue;
 				}
 
-				text = "<div style='width: 100%; color:#" + self.getContrastColor(room.world.color) + "; background-color:#" + room.world.color + "'>" + room.room.name + " (" + room.world.name + ")</div>"
+				text = "<div style='padding: 5px; width: 100%; color:#" + self.getContrastColor(room.world.color) + "; background-color:#" + room.world.color + "'>" + room.room.name + " (" + room.world.name + ")</div>"
 
 				for (var i = 0; i < roomPoses[roomId].length; i++) {
 					text += "<div><b>" + roomPoses[roomId][i].characterName + "</b> " + roomPoses[roomId][i].text +  "</div>";
@@ -170,9 +170,9 @@ PoseNotifier.prototype.sendPoses = function(poseList) {
 
 PoseNotifier.prototype.getContrastColor = function(bg) {
 	if (hexToLuminosity(bg) >= 0.5) {
-		return "fff";
-	} else {
 		return "000";
+	} else {
+		return "fff";
 	}
 }
 

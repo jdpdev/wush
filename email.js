@@ -1,5 +1,6 @@
 var nodemailer = require('nodemailer');
 var htmlToText = require('nodemailer-html-to-text').htmlToText;
+var mg = require('nodemailer-mailgun-transport');
 
 /**
  * Gateway for sending emails to universe participants.
@@ -7,20 +8,25 @@ var htmlToText = require('nodemailer-html-to-text').htmlToText;
  */
 var EmailManager = function(serverConfig) {
 	this._sendEmails = serverConfig.send;
+	this._serverConfig = serverConfig;
+
+	var emailVersion = require("./" + serverConfig.module);
+	this._emailModule = new emailVersion();
 
 	// create reusable transporter object using the default SMTP transport
-	this._transporter = nodemailer.createTransport({
+	/*this._transporter = nodemailer.createTransport({
 		pool: true,
 	    host: serverConfig.host,
 	    port: serverConfig.port,
-	    secure: true, // use SSL
+	    secure: false, // use SSL
 	    auth: {
 	        user: serverConfig.user,
 	        pass: serverConfig.password
-	    }
+	    },
+	    authMethod: "password"
 	});
 
-	this._transporter.use('compile', htmlToText());
+	this._transporter.use('compile', htmlToText());*/
 }
 
 EmailManager.prototype.sendMessage = function(to, subject, html) {
@@ -28,8 +34,17 @@ EmailManager.prototype.sendMessage = function(to, subject, html) {
 		return;
 	}
 
-	//console.log("sendMessage " + to + " >> (" + subject + ") " + html);
+	//this.mailgunSendMessage(to, subject, html);
+	this._emailModule.sendMessage(to, subject, html)
+	.then(function(response) {
 
+	})
+	.catch(function(error) {
+		console.error("EmailManager::sendMessage error >> " + JSON.stringify(error));
+	});
+}
+
+EmailManager.prototype.smtpSendMessage = function(to, subject, html) {
 	var options = {
 		from: "",
 		to: to,

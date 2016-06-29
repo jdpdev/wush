@@ -13,9 +13,6 @@
 
 	"email": {
 		"send": true,
-		"host": "",
-		"port": ,
-		"user": "",
-		"password": ""
+		"module": ""
 	}
 }
