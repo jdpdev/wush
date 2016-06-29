@@ -2,8 +2,9 @@ var World = require("./world");
 
 module.exports = WorldManager;
 
-function WorldManager() {
-    //this.worldCache = {};
+function WorldManager(universe) {
+    this.worldCache = {};
+    this._universe = universe;
 }
 
 WorldManager.prototype.initialize = function(app, ensureAuthenticated, db) {
@@ -12,9 +13,47 @@ WorldManager.prototype.initialize = function(app, ensureAuthenticated, db) {
     app.get("/api/world/list", ensureAuthenticated, function(req, res) {
       self.sendWorldList(req, res, db);
     });
+
+    console.log("Loading Worlds...");
+
+    return new Promise(function(resolve, reject) {
+        self.loadAllWorlds(db)
+        .then(function(success) {
+            console.log("Worlds loaded");
+            resolve(success);
+        })
+        .catch(function(error) {
+            reject(error);
+        });
+    });
 }
 
 WorldManager.prototype.worldCache = {};
+
+WorldManager.prototype.loadAllWorlds = function(db) {
+    var self = this;
+    
+    return new Promise(function(resolve, reject) {
+        var query = "SELECT * " + 
+                    "FROM world";
+        var inputs = {};
+        
+        db.query(query, inputs, function(err, rows, fields) {
+            if (err) {
+                reject(err);
+            }
+            
+            else {
+                for (var i = 0; i < rows.length; i++) {
+                    var world = new World(rows[i]);
+                    self.worldCache[rows[i].id] = world;
+                }
+
+                resolve();
+            }
+        });
+    });
+}
 
 /**
  * Loads information about a world
@@ -23,38 +62,10 @@ WorldManager.prototype.worldCache = {};
  * @return Promise that sends the world as a parameter on success
  */
 WorldManager.prototype.loadWorld = function(db, id) {
-    var self = this;
-    
-    return new Promise(function(resolve, reject) {
-        if (self.worldCache[id] != undefined) {
-            resolve(self.worldCache[id]);
-            return;
-        }    
-        
-        var query = "SELECT * " + 
-                    "FROM world r " +
-                    "WHERE ?";
-        var inputs = {"id": id};
-        
-        db.query(query, inputs, function(err, rows, fields) {
-            if (err) {
-                reject(err);
-            }
-            
-            else if (rows.length != 1) {
-                reject("Unable to load world.");
-            }
-            
-            else {
-                var world = new World(rows[0]);
-                self.worldCache[id] = world;
-                resolve(world);
-            }
-        });
-    });
+    this.loadCachedWorld();
 }
 
-WorldManager.prototype.loadCachedWorld = function(id) {
+WorldManager.prototype.getWorld = function(id) {
     if (this.worldCache[id]) {
         return this.worldCache[id];
     } else {

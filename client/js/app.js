@@ -145,6 +145,10 @@ wushApp.controller("wushController", function($http, $scope, $rootScope, $cookie
 
         return this.userInfo.characters && this.userInfo.characters.length > 0;
     }
+
+    this.addCharacter = function(character) {
+        
+    }
     
     /**
      * Returns the active socket connection to the server

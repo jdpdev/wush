@@ -1,21 +1,20 @@
 var Room = require("./room");
 var Character = require("./character");
-var WorldManagerReq = require("./worldManager");
-var WorldManager = new WorldManagerReq();
 var PoseManager = require("./poseManager");
 PoseManager = new PoseManager();
 
 module.exports = RoomManager;
 
-function RoomManager() {
+function RoomManager(universe) {
     this.roomCache = {};
     this.io = null;
+    this._universe = universe;
+    this._worldManager = universe.getWorldManager();
 }
 
 // Initialize all routing calls handled by the mananger
-RoomManager.prototype.initialize = function(app, ensureAuthenticated, db, io) {
+RoomManager.prototype.initialize = function(app, ensureAuthenticated, db) {
     var self = this;
-    this.io = io;
     
     app.get("/api/room/info", ensureAuthenticated, function(req, res) {
       self.sendRoomInfo(req, res, db);
@@ -33,15 +32,22 @@ RoomManager.prototype.initialize = function(app, ensureAuthenticated, db, io) {
       self.relocateCharacter(req, res, db);
     });
 
+    console.log("Loading rooms...");
+
     return new Promise(function(resolve, reject) {
         self.loadAllRooms(db)
         .then(function(success) {
+            console.log("Rooms loaded");
             resolve(success);
         })
         .catch(function(error) {
             reject(error);
         });
     });
+}
+
+RoomManager.prototype.setSocket = function(io) {
+    this.io = io;
 }
 
 /**
@@ -74,14 +80,7 @@ RoomManager.prototype.loadRoom = function(db, id) {
             //resolve({room: self.roomCache[id], world: });
             var room = self.roomCache[id];
             
-            WorldManager.loadWorld(db, room.worldId)
-            .then(function(world) {
-                resolve({room: room, world: world});  
-            })
-            .catch(function(error) {
-                resolve({room: room, error: error}); 
-            });
-            
+            resolve({room: room, world: self._worldManager.getWorld(room.worldId)});
             return;
         }    
         
@@ -104,7 +103,7 @@ RoomManager.prototype.loadRoom = function(db, id) {
                 var room = new Room(rows[0]);
                 self.roomCache[id] = room;
                 
-                WorldManager.loadWorld(db, room.worldId)
+                self._worldManager.loadWorld(db, room.worldId)
                 .then(function(world) {
                     resolve({room: room, world: world});  
                 })
@@ -156,7 +155,7 @@ RoomManager.prototype.loadCachedRoom = function(id) {
     if (!this.roomCache[id]) {
         return null;
     } else {
-        return {room: this.roomCache[id], world: WorldManager.loadCachedWorld(this.roomCache[id].worldId)};
+        return {room: this.roomCache[id], world: this._worldManager.getWorld(this.roomCache[id].worldId)};
     }
 }
 

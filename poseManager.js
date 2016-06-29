@@ -6,9 +6,9 @@ var PoseManager = function() {
 
 PoseManager.prototype.io = null;
 
-PoseManager.prototype.initialize = function(app, ensureAuthenticated, db, io) {
+PoseManager.prototype.initialize = function(app, ensureAuthenticated, db) {
     var self = this;
-    this.io = io;
+    this.io = null;
  
     // Params: character, room, pose
     app.post("/api/pose/add", ensureAuthenticated, function(req, res) {
@@ -16,6 +16,14 @@ PoseManager.prototype.initialize = function(app, ensureAuthenticated, db, io) {
       
       self.sendNewPose(req, res, db);
     });   
+
+    return new Promise(function(resolve, reject) {
+        resolve(true);
+    });
+}
+
+PoseManager.prototype.setSocket = function(io) {
+    this.io = io;
 }
 
 /**
