@@ -29,10 +29,14 @@ var CharacterManager = new CharacterManagerConstructor();
 
 var _currentMotd = null;
 
-// Load database settings
+// Server configuration settings
 var fs = require("fs");
 var contents = fs.readFileSync("config/server-config.json");
 var serverConfig = JSON.parse(contents);
+
+// Universe configuration settings. These are shared with the client
+contents = fs.readFileSync("client/config.json");
+var appConfig = JSON.parse(contents);
 
 var EmailManager = new email(serverConfig.email);
 var PoseNotifier = require("./pose-notifier");
@@ -46,7 +50,7 @@ var db = mysql.createPool({
   database: serverConfig.db.name
 });
 
-var _poseNotifier = new PoseNotifier(EmailManager, PoseManager, RoomManager, db);
+var _poseNotifier = new PoseNotifier(EmailManager, PoseManager, RoomManager, db, appConfig);
 _poseNotifier.start();
 
 // set up passport

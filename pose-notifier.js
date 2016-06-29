@@ -9,13 +9,21 @@ var _PoseNotifier = null;
  * @param {EmailManager} emailManager 	The email gateway
  * @param {PoseManager} poseManager 	The pose manager
  */
-var PoseNotifier = function(emailManager, poseManager, roomManager, db) {
+var PoseNotifier = function(emailManager, poseManager, roomManager, db, appConfig) {
 	_PoseNotifier = this;
 
 	this._db = db;
 	this._emailManager = emailManager;
 	this._poseManager = poseManager;
 	this._roomManager = roomManager;
+	this._appConfig = appConfig;
+
+	var fs = require("fs");
+	var contents = fs.readFileSync("config/digest.json");
+	this._config = JSON.parse(contents);
+
+	console.log(this._config.subject);
+	console.log(this.tokenReplace(this._config.subject));
 }
 
 PoseNotifier.prototype.start = function() {
@@ -144,7 +152,7 @@ PoseNotifier.prototype.sendPoses = function(poseList) {
 			}
 
 			// Construct the email
-			var content = "<div><h3>While you were away...</h3></div>";
+			var content = "<p>" + self.tokenReplace(self._config.intro) + "</p>";
 
 			for (var roomId in roomPoses) {
 				var room = self._roomManager.loadCachedRoom(roomId);
@@ -154,7 +162,7 @@ PoseNotifier.prototype.sendPoses = function(poseList) {
 					continue;
 				}
 
-				text = "<div style='padding: 5px; width: 100%; color:#" + self.getContrastColor(room.world.color) + "; background-color:#" + room.world.color + "'>" + room.room.name + " (" + room.world.name + ")</div>"
+				text = "<p style='padding: 5px; width: 100%; color:#" + self.getContrastColor(room.world.color) + "; background-color:#" + room.world.color + "'><b>" + room.room.name + " (" + room.world.name + ")</b></p>"
 
 				for (var i = 0; i < roomPoses[roomId].length; i++) {
 					text += "<div><b>" + roomPoses[roomId][i].characterName + "</b> " + roomPoses[roomId][i].text +  "</div>";
@@ -163,7 +171,7 @@ PoseNotifier.prototype.sendPoses = function(poseList) {
 				content += text;
 			}
 
-			self._emailManager.sendMessage(user.email, "New WUSH Activity", content);
+			self._emailManager.sendMessage(user.email, self.tokenReplace(self._config.subject), content);
 		});
 	}
 }
@@ -174,6 +182,17 @@ PoseNotifier.prototype.getContrastColor = function(bg) {
 	} else {
 		return "fff";
 	}
+}
+
+/**
+ * Find config tokens in a string and replace them with appropriate content
+ * @param  {string} content The string to manipulate
+ * @return {string}         The processed string
+ */
+PoseNotifier.prototype.tokenReplace = function(content) {
+	content = content.replace("%app%", this._appConfig.name);
+
+	return content;
 }
 
 /**
