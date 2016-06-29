@@ -34,42 +34,48 @@
 
   </head>
   <body ng-controller="wushController as app">
-    
-    <header>
-      <nav class="navbar navbar-default">
-        <div class="container">
-            <div class="navbar-header">
-                <a class="navbar-brand" href="/">WUSHing</a>
-            </div>
-        
-            <ul class="nav navbar-nav navbar-right">
-                <li><a href="#/"><i class="fa fa-home"></i> Profile</a></li>
-                <!--<li><a href="#/characters"><i class="fa fa-street-view"></i> My Characters</a></li>-->
-                <li>
-                  <a href="#/places">
-                    <i class="fa fa-map-o"></i> Worlds 
-                    <span ng-show="app.getQueueSize() > 0" class="badge">{{app.getQueueSize()}}</span>
-                  </a>
-                </li>
-                <li ng-show="app.userInfo"><a href="#/" ng-click="app.logout()"><i class="fa fa-power-off"></i> Log Out</a></li>
-            </ul>
-        </div>
-      </nav>
 
-      <div class="alert alert-danger" ng-hide="app.hasCharacters()">
-        <b><i class="fa fa-exclamation"></i></b> You do not have any characters to post with! Visit your <a href="#/">profile</a> to create your first character.
-      </div>
-    </header>
-    
-    <!-- MAIN CONTENT AND INJECTED VIEWS -->
-    <div id="content">
-			<div class="container">
-			  <div class="row">
-          <!--<div id="main" class="col-xs-12">-->
+    <div ng-hide="app._isReady">
+      <h4>Loading... <i class="fa fa-spin fa-spinner"></i></h4>
+    </div>
+
+    <div ng-show="app._isReady">    
+      <header>
+        <nav class="navbar navbar-default">
+          <div class="container">
+              <div class="navbar-header">
+                  <a class="navbar-brand" href="/">{{app._baseTitle}}</a>
+              </div>
           
-            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" ng-view></div>
-          
-          <!--</div>-->
+              <ul class="nav navbar-nav navbar-right">
+                  <li><a href="#/"><i class="fa fa-home"></i> Profile</a></li>
+                  <!--<li><a href="#/characters"><i class="fa fa-street-view"></i> My Characters</a></li>-->
+                  <li>
+                    <a href="#/places">
+                      <i class="fa fa-map-o"></i> Worlds 
+                      <span ng-show="app.getQueueSize() > 0" class="badge">{{app.getQueueSize()}}</span>
+                    </a>
+                  </li>
+                  <li ng-show="app.userInfo"><a href="#/" ng-click="app.logout()"><i class="fa fa-power-off"></i> Log Out</a></li>
+              </ul>
+          </div>
+        </nav>
+
+        <div class="alert alert-danger" ng-hide="app.hasCharacters()">
+          <b><i class="fa fa-exclamation"></i></b> You do not have any characters to post with! Visit your <a href="#/">profile</a> to create your first character.
+        </div>
+      </header>
+      
+      <!-- MAIN CONTENT AND INJECTED VIEWS -->
+      <div id="content">
+  			<div class="container">
+  			  <div class="row">
+            <!--<div id="main" class="col-xs-12">-->
+            
+              <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" ng-view></div>
+            
+            <!--</div>-->
+          </div>
         </div>
       </div>
     </div>
