@@ -1,10 +1,7 @@
 var World = require("./world");
 
-module.exports = WorldManager;
-
-function WorldManager(universe) {
+function WorldManager() {
     this.worldCache = {};
-    this._universe = universe;
 }
 
 WorldManager.prototype.initialize = function(app, ensureAuthenticated, db) {
@@ -113,3 +110,11 @@ WorldManager.prototype.getWorldList = function(db) {
         });
     });
 }
+
+var _instance = null;
+
+if (!_instance) {
+    _instance = new WorldManager();
+}
+
+module.exports = _instance;

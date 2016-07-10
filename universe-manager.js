@@ -11,10 +11,6 @@ var _instance = null;
  * all of them interact. This class manages those objects and interactions.
  */
 function UniverseManager() {
-	this._worldManager = new WorldManager(this);
-	this._roomManager = new RoomManager(this);
-	this._characterManager = new CharacterManager(this);
-	this._poseManager = new PoseManager(this);
 	this._poseNotifier = null;
 }
 
@@ -35,57 +31,54 @@ UniverseManager.prototype.initialize = function(app, ensureAuthenticated, db, em
 	return new Promise(function(resolve, reject) {
 
 	// Load worlds
-		self._worldManager.initialize(app, ensureAuthenticated, db)
+		WorldManager.initialize(app, ensureAuthenticated, db)
 			.then(function(success) {
 
 	// Load rooms
-				self._roomManager.initialize(app, ensureAuthenticated, db)
+				RoomManager.initialize(this, app, ensureAuthenticated, db)
 				.then(function(success) {
 
 	// Load Characters
-					self._characterManager.initialize(app, ensureAuthenticated, db)
+					CharacterManager.initialize(app, ensureAuthenticated, db)
 					.then(function(success) {
 
 	// Load poses
-						self._poseManager.initialize(app, ensureAuthenticated, db)
+						PoseManager.initialize(app, ensureAuthenticated, db)
 						.then(function(success) {
 
 	// Pose notifier
-							self._poseNotifier = new PoseNotifier(email, self._poseManager, self._roomMananger, db, self._config);
+							self._poseNotifier = new PoseNotifier(db, self._config);
     						self._poseNotifier.start();
 
 							resolve(true);
-						})			
+						}).catch(function(error) {
+							console.error(error);
+							reject(error);
+						});
 					});	
 				});
-			})
+			});/*
 			.catch(function(error) {
 				reject(error);
-			});
+			});*/
 	});
 }
 
-UniverseManager.prototype.setSocket = function(io) {
-	this._roomManager.setSocket(io);
-	this._poseManager.setSocket(io);
-}
-
-UniverseManager.prototype.getWorldManager = function() {
-	return this._worldManager;
-}
-
-UniverseManager.prototype.getRoomManager = function() {
-	return this._roomManager;
-}
-
-UniverseManager.prototype.getCharacterManager = function() {
-	return this._characterManager;
-}
-
 UniverseManager.prototype.getPoseManager = function() {
-	return this._poseManager;
+	return PoseManager;
+}
+
+UniverseManager.prototype.setSocket = function(io) {
+	RoomManager.setSocket(io);
+	PoseManager.setSocket(io);
 }
 
 // **** Exporting *****************************************************************
 
-module.exports = UniverseManager;
+if (!_instance) {
+	console.log("Creating new UniverseManager");
+	_instance = new UniverseManager();
+}
+
+console.log("Importing UniverseManager");
+module.exports = _instance;

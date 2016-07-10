@@ -1,20 +1,19 @@
 var Room = require("./room");
 var Character = require("./character");
 var PoseManager = require("./poseManager");
-PoseManager = new PoseManager();
+var WorldManager = require("./worldManager");
+//PoseManager = new PoseManager();
 
-module.exports = RoomManager;
-
-function RoomManager(universe) {
+function RoomManager() {
     this.roomCache = {};
     this.io = null;
-    this._universe = universe;
-    this._worldManager = universe.getWorldManager();
 }
 
 // Initialize all routing calls handled by the mananger
-RoomManager.prototype.initialize = function(app, ensureAuthenticated, db) {
+RoomManager.prototype.initialize = function(universe, app, ensureAuthenticated, db) {
     var self = this;
+    this._universe = universe;
+    this._worldManager = WorldManager;
     
     app.get("/api/room/info", ensureAuthenticated, function(req, res) {
       self.sendRoomInfo(req, res, db);
@@ -261,3 +260,11 @@ RoomManager.prototype.relocateCharacter = function(req, res, db) {
         });
     //});
 };
+
+var _instance = null;
+
+if (!_instance) {
+    _instance = new RoomManager();
+}
+
+module.exports = _instance;

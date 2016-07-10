@@ -1,7 +1,9 @@
 var users = require("./users");
+var UniverseManager = require("./universe-manager");
+var PoseManager = require("./poseManager");
+var RoomManager = require("./roomManager");
+var EmailManager = require("./email");
 var UserManager = new users();
-
-var _PoseNotifier = null;
 
 /**
  * The PoseNotifier gathers new poses at a certain interval, and sends notification emails
@@ -9,13 +11,10 @@ var _PoseNotifier = null;
  * @param {EmailManager} emailManager 	The email gateway
  * @param {PoseManager} poseManager 	The pose manager
  */
-var PoseNotifier = function(emailManager, poseManager, roomManager, db, appConfig) {
+var PoseNotifier = function(db, appConfig) {
 	_PoseNotifier = this;
 
 	this._db = db;
-	this._emailManager = emailManager;
-	this._poseManager = poseManager;
-	this._roomManager = roomManager;
 	this._appConfig = appConfig;
 
 	var fs = require("fs");
@@ -24,6 +23,10 @@ var PoseNotifier = function(emailManager, poseManager, roomManager, db, appConfi
 
 	console.log(this._config.subject);
 	console.log(this.tokenReplace(this._config.subject));
+}
+
+PoseNotifier.prototype.config = function(db, appConfig) {
+
 }
 
 PoseNotifier.prototype.start = function() {
@@ -45,7 +48,7 @@ PoseNotifier.prototype.emailInterval = function() {
 	
 	//console.log("emailInterval @ " + this._lastUpdate.toLocaleString() + " (" + timestamp + ")");
 
-	this._poseManager.loadAllSince(this._db, timestamp)
+	PoseManager.loadAllSince(this._db, timestamp)
 	.then(function(poses) {
 
 		// Have a map of poses indexed to the room they belong to.
@@ -65,9 +68,9 @@ PoseNotifier.prototype.emailInterval = function() {
 PoseNotifier.prototype.loadCharacters = function(poses) {
 	//console.log(poses.length + " rooms with poses since last digest");
 
-	if (poses.length == 0) {
+	/*if (poses.length == 0) {
 		return;
-	}
+	}*/
 
 	var self = this;
 	var roomIds = [];
@@ -76,7 +79,7 @@ PoseNotifier.prototype.loadCharacters = function(poses) {
 		roomIds.push(key);
 		//console.log(poses[key].length + " poses in room " + key);
 
-		this._roomManager.loadRoomMembersBatch(this._db, roomIds)
+		RoomManager.loadRoomMembersBatch(this._db, roomIds)
 		.then(function(roomChars) {
 
 			// Now have a map of poses per room (poses), and a map of characters per room (roomChars)
@@ -155,7 +158,7 @@ PoseNotifier.prototype.sendPoses = function(poseList) {
 			var content = "<p>" + self.tokenReplace(self._config.intro) + "</p>";
 
 			for (var roomId in roomPoses) {
-				var room = self._roomManager.loadCachedRoom(roomId);
+				var room = RoomManager.loadCachedRoom(roomId);
 				var text = "";
 
 				if (!room || !room.world) {
@@ -171,7 +174,7 @@ PoseNotifier.prototype.sendPoses = function(poseList) {
 				content += text;
 			}
 
-			self._emailManager.sendMessage(user.email, self.tokenReplace(self._config.subject), content);
+			EmailManager.sendMessage(user.email, self.tokenReplace(self._config.subject), content);
 		});
 	}
 }

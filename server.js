@@ -7,8 +7,8 @@ var http = require('http');
 var path = require('path');
 var mysql = require("mysql");
 var users = require("./users");
-var email = require("./email");
-var UniverseManager = require("./universe-manager");
+var EmailManager = require("./email");
+var _universe = require("./universe-manager");
 
 var async = require('async');
 var socketio = require('socket.io');
@@ -18,14 +18,14 @@ var Users = new users();
 
 var _currentMotd = null;
 
-var _universe = new UniverseManager();
+//var _universe = new UniverseManager();
 
 // Server configuration settings
 var fs = require("fs");
 var contents = fs.readFileSync("config/server-config.json");
 var serverConfig = JSON.parse(contents);
 
-var EmailManager = new email(serverConfig.email);
+EmailManager.config(serverConfig.email);
 
 // Set up database connection
 var db = mysql.createPool({
@@ -141,6 +141,7 @@ _universe.initialize(app, ensureAuthenticated, db, EmailManager)
     setupSocket();
   })
   .catch(function(error) {
+    console.error(error);
     throw error;
   });
 
@@ -166,7 +167,7 @@ function setupSocket() {
     });
 
     socket.on('update last seen', function (params) {
-      PoseManager.updateOwnerLastSeen(db, params.owner, params.room);
+      _universe.getPoseManager().updateOwnerLastSeen(db, params.owner, params.room);
     });
     
     if (socket.handshake.query != undefined) {

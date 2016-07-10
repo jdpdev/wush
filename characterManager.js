@@ -197,4 +197,10 @@ CharacterManager.prototype.updateCharacterInCache = function(character) {
     this.cache[character.id] = character;
 }
 
-module.exports = CharacterManager;
+var _instance = null;
+
+if (!_instance) {
+    _instance = new CharacterManager();
+}
+
+module.exports = _instance;
