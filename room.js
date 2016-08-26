@@ -1,6 +1,6 @@
 var Character = require("./character");
 var PoseManager = require("./poseManager");
-PoseManager = new PoseManager();
+//PoseManager = new PoseManager();
 
 /**
  *  Create a new room object from the database.

@@ -1,14 +1,16 @@
 var Pose = require("./pose");
 
+var _instance = null;
+
 var PoseManager = function() {
     
 }
 
 PoseManager.prototype.io = null;
 
-PoseManager.prototype.initialize = function(app, ensureAuthenticated, db, io) {
+PoseManager.prototype.initialize = function(app, ensureAuthenticated, db) {
     var self = this;
-    this.io = io;
+    this.io = null;
  
     // Params: character, room, pose
     app.post("/api/pose/add", ensureAuthenticated, function(req, res) {
@@ -16,6 +18,14 @@ PoseManager.prototype.initialize = function(app, ensureAuthenticated, db, io) {
       
       self.sendNewPose(req, res, db);
     });   
+
+    return new Promise(function(resolve, reject) {
+        resolve(true);
+    });
+}
+
+PoseManager.prototype.setSocket = function(io) {
+    this.io = io;
 }
 
 /**
@@ -34,9 +44,10 @@ PoseManager.prototype.loadAllSince = function(db, timestamp) {
                     "   ON c.id = p.character " +
                     "WHERE p.timestamp >= " + db.escape(timestamp) + " " +
                     "ORDER BY p.timestamp DESC";
-        
+
         db.query(query, {}, function(err, rows, fields) {
             if (err) {
+                console.log(err);
                 reject(err);
             } else {
                 var poses = {};
@@ -225,4 +236,8 @@ PoseManager.prototype.updateCharacterLastSeen = function(db, character) {
     });
 }
 
-module.exports = PoseManager;
+if (!_instance) {
+    _instance = new PoseManager();
+}
+
+module.exports = _instance;

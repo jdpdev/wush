@@ -36,4 +36,6 @@ jspm_packages
 # Optional REPL history
 .node_repl_history
 
-server-config.json
+# Ignore local config files
+config/*.json
+client/config.json

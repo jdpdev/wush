@@ -70,6 +70,8 @@ wushApp.controller("wushController", function($http, $scope, $rootScope, $cookie
 
     this._motd = null;
 
+    this._isReady = false;
+
     this.getMotd = function() {
         return this._motd;
     }
@@ -142,6 +144,10 @@ wushApp.controller("wushController", function($http, $scope, $rootScope, $cookie
         }
 
         return this.userInfo.characters && this.userInfo.characters.length > 0;
+    }
+
+    this.addCharacter = function(character) {
+        
     }
     
     /**
@@ -229,7 +235,21 @@ wushApp.controller("wushController", function($http, $scope, $rootScope, $cookie
         return this._queueSize;
     }
 
-    document.title = this._baseTitle;
+    // Load app settings
+    var self = this;
+
+    $http.get("config.json")
+        .success(function(data) {
+            self._baseTitle = data.name;
+            document.title = data.name;
+
+            self._isReady = true;
+        })
+        .error(function(data, status, headers, config) {
+            console.error(data);
+        });
+
+    document.title = "Loading...";
 
     document.addEventListener("visibilitychange", function() { 
         self._hasFocus = !document.hidden;
@@ -239,6 +259,8 @@ wushApp.controller("wushController", function($http, $scope, $rootScope, $cookie
             self.clearQueue();
         }
     });
+
+    // Get app settings
 
     // Initialization
     /*$pageVisibility.$on('pageFocused', function(){

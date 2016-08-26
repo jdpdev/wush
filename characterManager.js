@@ -1,7 +1,7 @@
 var Character = require("./character");
 
 function CharacterManager() {
-    
+    this._cache = {};
 }
 
 // Initialize all routing calls handled by the mananger
@@ -23,6 +23,19 @@ CharacterManager.prototype.initialize = function(app, ensureAuthenticated, db) {
     app.post("/api/character/create", ensureAuthenticated, function(req, res) {
       self.createCharacter(req, res, db);
     });   
+
+    console.log("Loading characters...");
+
+    return new Promise(function(resolve, reject) {
+        self.loadCharacters(db)
+        .then(function(success) {
+            console.log("Characters loaded");
+            resolve(true);
+        })
+        .catch(function(error) {
+            reject(error);
+        });
+    });
 }
 
 CharacterManager.prototype.cache = {};
@@ -104,38 +117,48 @@ CharacterManager.prototype.sendCharacterInfo = function(req, res, db) {
     });
 }
 
-CharacterManager.prototype.loadCharacter = function(db, id) {
+CharacterManager.prototype.loadCharacters = function(db) {
     var self = this;
     
     return new Promise(function(resolve, reject) {
-        if (self.cache[id] != undefined) {
-            var char = self.cache[id];
-            resolve({character: char});  
-            return;
-        }    
-        
+        self._cache = {};
+
         var query = "SELECT * " + 
-                    "FROM characters " +
-                    "WHERE ?";
-        var inputs = {"id": id};
+                    "FROM characters ";
+        var inputs = {};
         
         db.query(query, inputs, function(err, rows, fields) {
             if (err) {
                 reject(err);
             }
             
-            else if (rows.length != 1) {
-                reject("Unable to load character.");
-            }
-            
             // Load the room and its associated world
             else {
-                var char = new Character(rows[0]);
-                self.cache[id] = char;
-                resolve({character: char});
+                for (var i = 0; i < rows.length; i++) {
+                    var char = new Character(rows[i]);
+                    self._cache[rows[i].id] = char;
+                }
+
+                resolve(true);
             }
         });
     });
+}
+
+CharacterManager.prototype.loadCharacter = function(db, id) {
+    var self = this;
+    
+    return new Promise(function(resolve, reject) {
+       resolve({character: self.getCharacter(id)});
+    });
+}
+
+CharacterManager.prototype.getCharacter = function(id) {
+    if (this._cache && this._cache[id]) {
+        return this._cache[id];
+    } else {
+        return null;
+    }
 }
 
 /**
@@ -174,4 +197,10 @@ CharacterManager.prototype.updateCharacterInCache = function(character) {
     this.cache[character.id] = character;
 }
 
-module.exports = CharacterManager;
+var _instance = null;
+
+if (!_instance) {
+    _instance = new CharacterManager();
+}
+
+module.exports = _instance;

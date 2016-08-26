@@ -1,7 +1,9 @@
 var users = require("./users");
+var UniverseManager = require("./universe-manager");
+var PoseManager = require("./poseManager");
+var RoomManager = require("./roomManager");
+var EmailManager = require("./email");
 var UserManager = new users();
-
-var _PoseNotifier = null;
 
 /**
  * The PoseNotifier gathers new poses at a certain interval, and sends notification emails
@@ -9,13 +11,22 @@ var _PoseNotifier = null;
  * @param {EmailManager} emailManager 	The email gateway
  * @param {PoseManager} poseManager 	The pose manager
  */
-var PoseNotifier = function(emailManager, poseManager, roomManager, db) {
+var PoseNotifier = function(db, appConfig) {
 	_PoseNotifier = this;
 
 	this._db = db;
-	this._emailManager = emailManager;
-	this._poseManager = poseManager;
-	this._roomManager = roomManager;
+	this._appConfig = appConfig;
+
+	var fs = require("fs");
+	var contents = fs.readFileSync("config/digest.json");
+	this._config = JSON.parse(contents);
+
+	console.log(this._config.subject);
+	console.log(this.tokenReplace(this._config.subject));
+}
+
+PoseNotifier.prototype.config = function(db, appConfig) {
+
 }
 
 PoseNotifier.prototype.start = function() {
@@ -37,7 +48,7 @@ PoseNotifier.prototype.emailInterval = function() {
 	
 	//console.log("emailInterval @ " + this._lastUpdate.toLocaleString() + " (" + timestamp + ")");
 
-	this._poseManager.loadAllSince(this._db, timestamp)
+	PoseManager.loadAllSince(this._db, timestamp)
 	.then(function(poses) {
 
 		// Have a map of poses indexed to the room they belong to.
@@ -57,9 +68,9 @@ PoseNotifier.prototype.emailInterval = function() {
 PoseNotifier.prototype.loadCharacters = function(poses) {
 	//console.log(poses.length + " rooms with poses since last digest");
 
-	if (poses.length == 0) {
+	/*if (poses.length == 0) {
 		return;
-	}
+	}*/
 
 	var self = this;
 	var roomIds = [];
@@ -68,7 +79,7 @@ PoseNotifier.prototype.loadCharacters = function(poses) {
 		roomIds.push(key);
 		//console.log(poses[key].length + " poses in room " + key);
 
-		this._roomManager.loadRoomMembersBatch(this._db, roomIds)
+		RoomManager.loadRoomMembersBatch(this._db, roomIds)
 		.then(function(roomChars) {
 
 			// Now have a map of poses per room (poses), and a map of characters per room (roomChars)
@@ -144,17 +155,17 @@ PoseNotifier.prototype.sendPoses = function(poseList) {
 			}
 
 			// Construct the email
-			var content = "<div><h3>While you were away...</h3></div>";
+			var content = "<p>" + self.tokenReplace(self._config.intro) + "</p>";
 
 			for (var roomId in roomPoses) {
-				var room = self._roomManager.loadCachedRoom(roomId);
+				var room = RoomManager.loadCachedRoom(roomId);
 				var text = "";
 
 				if (!room || !room.world) {
 					continue;
 				}
 
-				text = "<div style='width: 100%; color:#" + self.getContrastColor(room.world.color) + "; background-color:#" + room.world.color + "'>" + room.room.name + " (" + room.world.name + ")</div>"
+				text = "<p style='padding: 5px; width: 100%; color:#" + self.getContrastColor(room.world.color) + "; background-color:#" + room.world.color + "'><b>" + room.room.name + " (" + room.world.name + ")</b></p>"
 
 				for (var i = 0; i < roomPoses[roomId].length; i++) {
 					text += "<div><b>" + roomPoses[roomId][i].characterName + "</b> " + roomPoses[roomId][i].text +  "</div>";
@@ -163,17 +174,28 @@ PoseNotifier.prototype.sendPoses = function(poseList) {
 				content += text;
 			}
 
-			self._emailManager.sendMessage(user.email, "New WUSH Activity", content);
+			EmailManager.sendMessage(user.email, self.tokenReplace(self._config.subject), content);
 		});
 	}
 }
 
 PoseNotifier.prototype.getContrastColor = function(bg) {
 	if (hexToLuminosity(bg) >= 0.5) {
-		return "fff";
-	} else {
 		return "000";
+	} else {
+		return "fff";
 	}
+}
+
+/**
+ * Find config tokens in a string and replace them with appropriate content
+ * @param  {string} content The string to manipulate
+ * @return {string}         The processed string
+ */
+PoseNotifier.prototype.tokenReplace = function(content) {
+	content = content.replace("%app%", this._appConfig.name);
+
+	return content;
 }
 
 /**
