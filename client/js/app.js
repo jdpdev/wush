@@ -147,7 +147,7 @@ wushApp.controller("wushController", function($http, $scope, $rootScope, $cookie
     }
 
     this.addCharacter = function(character) {
-        
+        this.userInfo.characters.push(character);
     }
     
     /**
