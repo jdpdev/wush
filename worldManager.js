@@ -20,6 +20,7 @@ WorldManager.prototype.initialize = function(app, ensureAuthenticated, db) {
             resolve(success);
         })
         .catch(function(error) {
+            console.log(error);
             reject(error);
         });
     });
