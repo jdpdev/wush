@@ -1,9 +1,16 @@
 var Character = function(row) {
-    this.id = row.id;
-    this.owner = row.owner;
-    this.name = row.name;
-    this.description = row.description;
-    this.lastseen = new Date(row.lastseen);
+    this.id = row ? row.id : null;
+    this.owner = row ? row.owner : null;
+    this.name = row ? row.name : null;
+    this.description = row ? row.description : null;
+    this.lastseen = row ? new Date(row.lastseen) : null;
+}
+
+Character.prototype.createNew = function(id, name, owner) {
+    this.id = id;
+    this.owner = owner;
+    this.name = name;
+    this.description = "";
 }
 
 Character.prototype.updateDescription = function(db, description) {

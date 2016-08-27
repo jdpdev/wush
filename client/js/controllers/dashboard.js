@@ -114,6 +114,7 @@ wushApp.controller("createCharacterController", function($scope, $http, $uibModa
                     if (response.data.success) {
                         $location.path("/character/" + response.data.id);
                         $uibModalInstance.close();
+                        app.addCharacter(response.data.character);
                     } else {
                         self.errorMessage = response.data.error;
                     }

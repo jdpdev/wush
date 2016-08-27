@@ -43,13 +43,18 @@ CharacterManager.prototype.cache = {};
 
 CharacterManager.prototype.createCharacter = function(req, res, db) {
     var query = "INSERT INTO `characters` SET ?";
-    var inputs = {"name": req.body.name, "owner": req.body.owner};
+    var inputs = {"name": req.body.name, "owner": req.body.owner, "description": ""};
+    var self = this;
     
     db.query(query, inputs, function(err, result) {
         if (err) {
             res.json({success: false, authenticated: true, error: err});
         } else {
-            res.json({success: true, authenticated: true, id: result.insertId});
+            var char = new Character(null);
+            char.createNew(result.insertId, req.body.name, req.body.owner);
+            self.updateCharacterInCache(char);
+
+            res.json({success: true, authenticated: true, id: result.insertId, character: char});
         }
     });
 }
@@ -109,13 +114,13 @@ CharacterManager.prototype.getLastSeenMessages = function(db, id) {
  * Send information about a given character
  */
 CharacterManager.prototype.sendCharacterInfo = function(req, res, db) {
-    this.loadCharacter(db, req.query.id)
-    .then(function(info) {
-        res.json({success: true, authenticated: true, character: info.character});
-    })
-    .catch(function(error) {
-        res.json({success: false, authenticated: true, error: error});
-    });
+    var char = this.getCharacter(req.query.id);
+
+    if (char) {
+        res.json({success: true, authenticated: true, character: char});
+    } else {
+        res.json({success: false, authenticated: true, error: "Invalid Character"});
+    }
 }
 
 CharacterManager.prototype.loadCharacters = function(db) {
@@ -195,7 +200,7 @@ CharacterManager.prototype.changeDescription = function(req, res, db) {
  * Updates the record of a character in the cache
  */
 CharacterManager.prototype.updateCharacterInCache = function(character) {
-    this.cache[character.id] = character;
+    this._cache[character.id] = character;
 }
 
 var _instance = null;
