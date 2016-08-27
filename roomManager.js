@@ -40,6 +40,7 @@ RoomManager.prototype.initialize = function(universe, app, ensureAuthenticated, 
             resolve(success);
         })
         .catch(function(error) {
+            console.log(error);
             reject(error);
         });
     });

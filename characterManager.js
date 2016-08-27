@@ -33,6 +33,7 @@ CharacterManager.prototype.initialize = function(app, ensureAuthenticated, db) {
             resolve(true);
         })
         .catch(function(error) {
+            console.log(error);
             reject(error);
         });
     });

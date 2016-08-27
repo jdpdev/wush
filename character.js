@@ -8,13 +8,14 @@ var Character = function(row) {
 
 Character.prototype.updateDescription = function(db, description) {
     var self = this;
-    
+
     return new Promise(function(resolve, reject) {
-        var query = "UPDATE characters SET ? WHERE id = " + self.id;
-        var inputs = {"description": description};
+        var query = "UPDATE characters SET description='" + description + "' WHERE id = " + self.id;
+        var inputs = {};
         
         var request = db.query(query, inputs, function(err, rows, fields) {
             if (err) {
+                console.log(err);
                 reject(err);
             } else {
                 self.description = description;
