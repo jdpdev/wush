@@ -4,9 +4,12 @@
 
 <div class="row">
     <div class="col-xs-12 col-md-6 col-md-offset-3">
-        
-        <div class="well">
-        <form class="form-horizontal" action="/api/login" method="post">
+        <div class="text-center" ng-hide="login.allowLogin">
+            <i class="fa fa-2x fa-spin fa-spinner"></i>
+        </div>
+
+        <div class="well" ng-show="login.allowLogin">
+        <form class="form-horizontal" ng-submit="login.submit()">
             
             <div class="form-group">
                 <label for="username" class="col-md-3">Username</label>

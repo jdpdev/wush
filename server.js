@@ -93,6 +93,14 @@ app.configure(function() {
   }
 });*/
 
+app.get("/api/authenticated", function(req, res) {
+  if (req.isAuthenticated()) {
+    return res.json({ success: true, authenticated: true, id: req.user.id, name: req.user.name });
+  } else {
+    return res.json({ success: true, authenticated: false, error: "Not authenticated" });
+  }
+});
+
 app.get('/api/users', function (req, res) {
   Users.list(db, res);
 });

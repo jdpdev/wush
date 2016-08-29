@@ -48,10 +48,20 @@ wushApp.config(function($routeProvider, $locationProvider) {
     })
     
     .otherwise({
-        redirectTo: '/'
+        redirectTo: '/login'
     });
     
     //$locationProvider.html5Mode(true);
+});
+
+wushApp.run(function($rootScope, $location, $anchorScroll, $routeParams) {
+    
+    // Restrict stores to issues
+    $rootScope.$on('$routeChangeStart', function(event, next, current) {
+        if (!$rootScope.isLoggedIn) {
+            $location.path( "/login" );
+        }
+    });
 });
 
 // Main app controller
@@ -71,6 +81,8 @@ wushApp.controller("wushController", function($http, $scope, $rootScope, $cookie
     this._motd = null;
 
     this._isReady = false;
+
+    $rootScope.isLoggedIn = false;
 
     this.getMotd = function() {
         return this._motd;
@@ -96,6 +108,7 @@ wushApp.controller("wushController", function($http, $scope, $rootScope, $cookie
             function(response) {
                 self.userInfo = null;
                 self.socket.disconnect();
+                $rootScope.isLoggedIn = false;
                 $location.path("/login");
             },
 
