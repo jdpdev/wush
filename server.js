@@ -93,6 +93,14 @@ app.configure(function() {
   }
 });*/
 
+app.get("/api/authenticated", function(req, res) {
+  if (req.isAuthenticated()) {
+    return res.json({ success: true, authenticated: true, id: req.user.id, name: req.user.name });
+  } else {
+    return res.json({ success: true, authenticated: false, error: "Not authenticated" });
+  }
+});
+
 app.get('/api/users', function (req, res) {
   Users.list(db, res);
 });
@@ -125,9 +133,10 @@ app.get("/api/users/info", ensureAuthenticated, function(req, res) {
 });
 
 app.post('/api/login',
-  passport.authenticate('local', { successRedirect: '/',
-                                   failureRedirect: '/login.html?error=Login failed',
-                                   failureFlash: true })
+  passport.authenticate('local', { failureRedirect: "/login", failureFlash: false }),
+  function(req, res) {
+    res.json({success: true});
+  }
 );
 
 app.get("/api/logout", function(req, res) {

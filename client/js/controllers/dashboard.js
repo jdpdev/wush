@@ -1,5 +1,5 @@
 /* global wushApp */
-wushApp.controller("profileController", function($scope, $http, $location, $uibModal, $sce) {
+wushApp.controller("profileController", function($scope, $http, $location, $uibModal, $sce, getServer) {
     var self = this;
     
     this.username = "";
@@ -14,23 +14,23 @@ wushApp.controller("profileController", function($scope, $http, $location, $uibM
 
     this.getUserInfo = function() {
         // Request profile info
-        $http.get("/api/users/info", {withCredentials: true}).then(
+        getServer("users/info", {}).then(
             
             // Success
             function(response) {
-                if (response.data.success) {
+                if (response.success) {
                     console.log("success");  
-                    self.username = response.data.name;
-                    self.characters = response.data.characters;
+                    self.username = response.name;
+                    self.characters = response.characters;
                     
                     /* global app */
-                    $scope.app.setUserInfo({name: response.data.name, id: response.data.id, characters: self.characters});
+                    $scope.app.setUserInfo({name: response.name, id: response.id, characters: self.characters});
 
                     self.getLastSeenPoses();
                 } else {
                     console.log("data error");
                     
-                    if (!response.data.authenticated) {
+                    if (!response.authenticated) {
                         $location.path("/login");
                     }
                 }
@@ -45,12 +45,14 @@ wushApp.controller("profileController", function($scope, $http, $location, $uibM
 
     this.getLastSeenPoses = function() {
         // Last poses
-        $http.get("/api/character/lastseen", {withCredentials: true, params: {id: $scope.app.getUserInfo().id}}).then(
+        getServer("character/lastseen", {id: $scope.app.getUserInfo().id}).then(
             
             // Success
             function (response) {
-                if (response.data.success) {
-                    self.newPoses = response.data.poses;
+                if (response.success) {
+                    $scope.$apply(function() {
+                        self.newPoses = response.poses;
+                    });
                 } else {
                     console.log(response);
                 }
@@ -98,7 +100,7 @@ wushApp.controller("profileController", function($scope, $http, $location, $uibM
     this.getUserInfo();
 });
 
-wushApp.controller("createCharacterController", function($scope, $http, $uibModalInstance, $location, app) {
+wushApp.controller("createCharacterController", function($scope, $http, $uibModalInstance, $location, app, postServer) {
     var self = this;
     
     this.characterName = "";
@@ -109,7 +111,7 @@ wushApp.controller("createCharacterController", function($scope, $http, $uibModa
         if (this.characterName.length == 0) {
             this.errorMessage = "You must enter a name.";
         } else {
-            $http.post("/api/character/create", {name: this.characterName, owner: app.getUserInfo().id}, {withCredentials: true}).then(
+            postServer("character/create", {name: this.characterName, owner: app.getUserInfo().id}).then(
                 function(response) {
                     if (response.data.success) {
                         $location.path("/character/" + response.data.id);

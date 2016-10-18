@@ -1,6 +1,6 @@
 // Login controller
 /* global wushApp */
-wushApp.controller("accountController", function($scope, $http, $location) {
+wushApp.controller("accountController", function($scope, $http, $location, postServer) {
     this.info = {
         username: "",
         password: "",
@@ -8,7 +8,7 @@ wushApp.controller("accountController", function($scope, $http, $location) {
     }
     
     this.submit = function() {
-        $http.post("/api/users/create", this.info, {withCredentials: true}).then(
+        postServer("users/create", this.info).then(
             function(response) {
                 if (response.data.success) {
                     $location.path("/login");

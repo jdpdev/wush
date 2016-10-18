@@ -74,6 +74,10 @@ RoomManager.prototype.sendRoomInfo = function(req, res, db) {
  */
 RoomManager.prototype.loadRoom = function(db, id) {
     var self = this;
+
+    if (id == undefined) {
+        return;
+    }
     
     return new Promise(function(resolve, reject) {
         if (self.roomCache[id] != undefined) {
@@ -138,6 +142,7 @@ RoomManager.prototype.loadAllRooms = function(db) {
                 for (var i = 0 ; i < rows.length; i++) {
                     var room = new Room(rows[i]);
                     self.roomCache[room.id] = room;
+                    console.log("Loaded room id " + room.id);
                 }
 
                 resolve(true);

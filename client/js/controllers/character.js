@@ -1,5 +1,5 @@
 /* global wushApp */
-wushApp.controller("characterController", function($scope, $http, $route, $routeParams) {
+wushApp.controller("characterController", function($scope, $http, $route, $routeParams, getServer, postServer) {
     var self = this;
     
     this.id = $routeParams.id;
@@ -11,7 +11,7 @@ wushApp.controller("characterController", function($scope, $http, $route, $route
     this.newDescription = "";
     
     // Get dump of info about the character
-    $http.get("/api/character/info", {withCredentials: true, params: {id: this.id}}).then(
+    getServer("character/info", {id: this.id}).then(
         
         // Success
         function (response) {
@@ -30,7 +30,7 @@ wushApp.controller("characterController", function($scope, $http, $route, $route
             return;
         }
         
-        $http.post("/api/character/description", {id: this.id, description: this.newDescription}, {withCredentials: true}).then(
+        postServer("character/description", {id: this.id, description: this.newDescription}).then(
             function (response) {
                 if (response.data.success) {
                     self.info.description = self.newDescription;

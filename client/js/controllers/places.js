@@ -1,22 +1,24 @@
 /* global wushApp */
-wushApp.controller("placeListController", function($scope, $http) {
+wushApp.controller("placeListController", function($scope, $http, getServer) {
     var self = this;
     
     this.worlds = {};
     
     // Get dump of info about the character
-    $http.get("/api/world/list", {withCredentials: true}).then(
+    getServer("world/list", {}).then(
         
         // Success
         function (response) {
-            if (response.data.success) {
-                self.worlds = response.data.worlds;
+            if (response.success) {
+                $scope.$apply(function() {
+                    self.worlds = response.worlds;
+                });
             }
         },
         
         // Error
         function (response) {
-            console.log(response.data.error);
+            console.log(response.error);
         }
     );
 });
