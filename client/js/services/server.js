@@ -42,12 +42,20 @@ wushApp.factory("postServer", ["$http", function($http) {
 		                if (response.data.success) {
 		                    resolve(response.data);
 		                } else {
-		                    reject(response.data.error);
+		                	if (response.data.errror) {
+			                    reject(response.data.error);
+			                } else {
+			                	reject(response.data);
+			                }
 		                }
 		            },
 		            
 		            function (response) {
-		                reject(response.data.error);
+		                if (response.data.errror) {
+		                    reject(response.data.error);
+		                } else {
+		                	reject(response.data);
+		                }
 		            }
 		        );
 			}

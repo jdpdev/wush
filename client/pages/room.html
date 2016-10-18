@@ -49,106 +49,123 @@
   
 </style>
 
-  <div class="row">
-    <div class="page-header col-md-12" style="background-color: #{{room.world.color}};">
-      <h3 style="color: {{app.getContrastColor(room.world.color)}}">
-        {{room.info.name}} 
-        <small style="color: {{app.getContrastColor(room.world.color)}}">[{{room.world.name}}]</small>
+  <div class="row" ng-show="room.fatalError">
+    <div class="page-header col-md-12">
+      <h3>
+        An error has occurred loading this page. Please notify your local friendly administrator with the following information:
       </h3>
+
+      <div class="well">
+        {{room.fatalError.error}}<br/>
+        Room ID: {{room.info.id}}<br/>
+        Authenticated? {{room.fatalError.authenticated}}<br/>
+      </div>
     </div>
   </div>
-  
-  <div class="row">
-    
-    <!-- Poses -->
-    <div class="col-xs-12 col-sm-8 col-md-9">
-      <div class="row" ng-hide="room.playerCharacters.length == 0">
-        <div class="col-xs-12">
-          <form ng-submit="room.sendPose()">
-            <input type="hidden" ng-model="room.poseData.room" />
-            <input type="hidden" ng-model="room.poseData.character" />
-            
-            <div class="form-group">
-              <div class="col-xs-12 clickable"
-                    ng-click="room.bShowWritePose = !room.bShowWritePose">
-                <label for="poseText">Write a Pose</label>
-                <i class="fa clickable" 
-                    ng-class="{'fa-caret-up': room.bShowWritePose, 'fa-caret-down': !room.bShowWritePose}"></i>
-              </div>
-            </div>
-            
-            <div class="form-group" ng-hide="!room.bShowWritePose">
-              <div class="col-xs-12 col-sm-8 col-md-9">
-                <textarea id="poseText" class="form-control" rows="3"
-                          ng-model="room.poseData.pose"></textarea>
-              </div>
-              
-              <div class="col-xs-12 col-sm-4 col-md-3">
-                <select class="form-control" style="margin-bottom: 5px"
-                        ng-model="room.selectedCharacter"
-                        ng-options="character as character.name for character in room.playerCharacters track by character.id">
-                </select>
-                
-                <button type="submit" class="btn btn-primary">Send</button>
-              </div>
-            </div>
-          </form>
-        </div>
-      </div>
-      
-      <div class="row">
-        <div class="col-xs-12">
-          <div class="pose" ng-repeat="pose in room.poses track by pose.id">
-            <h5 class="poseHead">{{pose.characterName}} <small>{{pose.timestamp | date:'medium'}}</small></h5>
-            <p class="poseBody">
-              {{pose.text}}
-            </p>
-          </div>
-        </div>
+
+  <div ng-hide="room.fatalError">
+
+    <div class="row">
+      <div class="page-header col-md-12" style="background-color: #{{room.world.color}};">
+        <h3 style="color: {{app.getContrastColor(room.world.color)}}">
+          {{room.info.name}} 
+          <small style="color: {{app.getContrastColor(room.world.color)}}">[{{room.world.name}}]</small>
+        </h3>
       </div>
     </div>
     
-    <!-- Characters -->
-    <div class="col-xs-12 col-sm-4 col-md-3">
-      <div class="row">
-        <div class="col-xs-12">
-          <div class="well">
-            <h4>Who's Here?</h4>
-            <div ng-repeat="char in room.characters track by char.id">
-              <h5>
-                <span ng-class="{playerChar: room.isUserCharacter(char)}">{{char.name}}</span>
-                <i class="fa fa-search moreInfo"
-                    popover-trigger="mouseenter"
-                    popover-placement="bottom" 
-                    uib-popover="{{char.description}}"></i>
-
-                <i class="fa fa-user" ng-show="room.isUserCharacter(char)"></i>
-              </h5>
+    <div class="row">
+      
+      <!-- Poses -->
+      <div class="col-xs-12 col-sm-8 col-md-9">
+        <div class="row" ng-hide="room.playerCharacters.length == 0">
+          <div class="col-xs-12">
+            <form ng-submit="room.sendPose()">
+              <input type="hidden" ng-model="room.poseData.room" />
+              <input type="hidden" ng-model="room.poseData.character" />
+              
+              <div class="form-group">
+                <div class="col-xs-12 clickable"
+                      ng-click="room.bShowWritePose = !room.bShowWritePose">
+                  <label for="poseText">Write a Pose</label>
+                  <i class="fa clickable" 
+                      ng-class="{'fa-caret-up': room.bShowWritePose, 'fa-caret-down': !room.bShowWritePose}"></i>
+                </div>
+              </div>
+              
+              <div class="form-group" ng-hide="!room.bShowWritePose">
+                <div class="col-xs-12 col-sm-8 col-md-9">
+                  <textarea id="poseText" class="form-control" rows="3"
+                            ng-model="room.poseData.pose"></textarea>
+                </div>
+                
+                <div class="col-xs-12 col-sm-4 col-md-3">
+                  <select class="form-control" style="margin-bottom: 5px"
+                          ng-model="room.selectedCharacter"
+                          ng-options="character as character.name for character in room.playerCharacters track by character.id">
+                  </select>
+                  
+                  <button type="submit" class="btn btn-primary">Send</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+        
+        <div class="row">
+          <div class="col-xs-12">
+            <div class="pose" ng-repeat="pose in room.poses track by pose.id">
+              <h5 class="poseHead">{{pose.characterName}} <small>{{pose.timestamp | date:'medium'}}</small></h5>
+              <p class="poseBody">
+                {{pose.text}}
+              </p>
             </div>
           </div>
         </div>
       </div>
       
-      <div class="row" ng-hide="room.missingCharacters == 0">
-        <div class="col-xs-12">
-          <h5>Relocate a Character</h5>
-          
-          <form ng-submit="room.relocateCharacter()">
-          <div class="form-group">
-            <div class="col-xs-12 col-md-8">
-              <select
-                class="form-control"
-                ng-model="room.characterToMove"
-                ng-options="character as character.name for character in room.missingCharacters track by character.id">>
-                
-              </select>
-            </div>
-            
-            <div class="col-xs-12 col-md-4">
-              <button type="submit" class="btn btn-primary">Relocate</button>
+      <!-- Characters -->
+      <div class="col-xs-12 col-sm-4 col-md-3">
+        <div class="row">
+          <div class="col-xs-12">
+            <div class="well">
+              <h4>Who's Here?</h4>
+              <div ng-repeat="char in room.characters track by char.id">
+                <h5>
+                  <span ng-class="{playerChar: room.isUserCharacter(char)}">{{char.name}}</span>
+                  <i class="fa fa-search moreInfo"
+                      popover-trigger="mouseenter"
+                      popover-placement="bottom" 
+                      uib-popover="{{char.description}}"></i>
+
+                  <i class="fa fa-user" ng-show="room.isUserCharacter(char)"></i>
+                </h5>
+              </div>
             </div>
           </div>
-          </form>
+        </div>
+        
+        <div class="row" ng-hide="room.missingCharacters == 0">
+          <div class="col-xs-12">
+            <h5>Relocate a Character</h5>
+            
+            <form ng-submit="room.relocateCharacter()">
+            <div class="form-group">
+              <div class="col-xs-12 col-md-8">
+                <select
+                  class="form-control"
+                  ng-model="room.characterToMove"
+                  ng-options="character as character.name for character in room.missingCharacters track by character.id">>
+                  
+                </select>
+              </div>
+              
+              <div class="col-xs-12 col-md-4">
+                <button type="submit" class="btn btn-primary">Relocate</button>
+              </div>
+            </div>
+            </form>
+          </div>
         </div>
       </div>
     </div>

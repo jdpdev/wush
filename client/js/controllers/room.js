@@ -1,6 +1,8 @@
 /* global wushApp */
-wushApp.controller("roomController", function($scope, $http, $route, $routeParams, $location) {
+wushApp.controller("roomController", function($scope, $http, $route, $routeParams, $location, getServer, postServer) {
     var self = this;
+
+    this.fatalError = null;
     
     this.info = {id: $routeParams.id};
     this.world = {color: "#cccccc"};
@@ -26,18 +28,20 @@ wushApp.controller("roomController", function($scope, $http, $route, $routeParam
     
     // Get the initial dump of room info
     // ...room info
-    $http.get("/api/room/info", {withCredentials: true, params: {id: $routeParams.id}}).then(
+    getServer("room/info", {id: $routeParams.id}).then(
         
         // Success
         function (response) {
-            if (response.data.success) {
-                self.info = response.data.room;
-                self.world = response.data.world;
+            if (response.success) {
+                self.info = response.room;
+                self.world = response.world;
             } else {
-                console.log(response);    
+                console.log(response.error);    
                 
-                if (!response.data.authenticated) {
+                if (!response.authenticated) {
                     $location.path("/login");
+                } else {
+                    self.fatalError = response;
                 }
             }
         },
@@ -45,16 +49,17 @@ wushApp.controller("roomController", function($scope, $http, $route, $routeParam
         // Error
         function (response) {
             console.log(response);
+            self.fatalError = error;
         }
     );
     
     // ...room members
-    $http.get("/api/room/members", {withCredentials: true, params: {id: $routeParams.id}}).then(
+    getServer("room/members", {id: $routeParams.id}).then(
         
         // Success
         function (response) {
-            if (response.data.success) {
-                self.characters = response.data.characters;
+            if (response.success) {
+                self.characters = response.characters;
                 
                 if (self.characters.length > 0) {
                     self.poseData.character = self.characters[0].id;
@@ -99,12 +104,12 @@ wushApp.controller("roomController", function($scope, $http, $route, $routeParam
     );
     
     // ...recent poses
-    $http.get("/api/room/poses", {withCredentials: true, params: {id: $routeParams.id}}).then(
+    getServer("room/poses", {id: $routeParams.id}).then(
         
         // Success
         function (response) {
-            if (response.data.success) {
-                self.poses = response.data.poses;
+            if (response.success) {
+                self.poses = response.poses;
             } else {
                 console.log(response);
             }
@@ -149,16 +154,16 @@ wushApp.controller("roomController", function($scope, $http, $route, $routeParam
         this.poseData.character = this.selectedCharacter.id;
         this.poseData.characterName = this.selectedCharacter.name;
         
-        $http.post("/api/pose/add", this.poseData, {withCredentials: true}).then(
+        postServer("pose/add", this.poseData).then(
             
             // Success
             function (response) {
                 
-                if (!response.data.success) {
+                if (!response.success) {
                     console.log(response);
                 } else {
                     var pose = {
-                        id: response.data.id,
+                        id: response.id,
                         room: self.info.name,
                         timestamp: new Date().toLocaleString(),
                         text: self.poseData.pose,
@@ -182,9 +187,9 @@ wushApp.controller("roomController", function($scope, $http, $route, $routeParam
     this.relocateCharacter = function() {
         var self = this;
         
-        $http.post("/api/room/relocate", {character: this.characterToMove.id, room: this.info.id}, {withCredentials: true}).then(
+        postServer("room/relocate", {character: this.characterToMove.id, room: this.info.id}).then(
             function(response) {
-                if (response.data.success) {
+                if (response.success) {
                     self.characters.push(self.characterToMove);
                     self.playerCharacters.push(self.characterToMove);
                     

@@ -1,20 +1,30 @@
 // Login controller
 /* global wushApp */
-wushApp.controller("loginController", function($scope, $http, $rootScope, $location, getServer) {
+wushApp.controller("loginController", function($scope, $http, $rootScope, $location, getServer, postServer) {
     var self = this;
     this.username = "";
     this.password = "";
     this.allowLogin = false;
+    this.loginError = false;
+    this.pendingLogin = false;
     
     this.submit = function() {
-        $http.post("/api/login", {username: this.username, password: this.password}).then(
+        this.loginError = false;
+        this.pendingLogin = true;
+
+        postServer("login", {username: this.username, password: this.password}).then(
             function(response) {
-                $rootScope.isLoggedIn = true;
-                $location.path( "/" );
+                $scope.$apply(function() {
+                    $rootScope.isLoggedIn = true;
+                    $location.path( "/" );
+                });
             },
             
             function(response) {
-                
+                $scope.$apply(function() {
+                    self.loginError = true;
+                    self.pendingLogin = false;
+                });
             }
         );
     }

@@ -133,9 +133,10 @@ app.get("/api/users/info", ensureAuthenticated, function(req, res) {
 });
 
 app.post('/api/login',
-  passport.authenticate('local', { successRedirect: '/',
-                                   failureRedirect: '/login.html?error=Login failed',
-                                   failureFlash: true })
+  passport.authenticate('local', { failureRedirect: "/login", failureFlash: false }),
+  function(req, res) {
+    res.json({success: true});
+  }
 );
 
 app.get("/api/logout", function(req, res) {
