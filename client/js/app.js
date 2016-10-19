@@ -70,6 +70,7 @@ wushApp.controller("wushController", function($http, $scope, $rootScope, $cookie
 
     this.userInfo = null;
     this.socket = null;
+    this._socketUrl = "";
     this._socketReady = false;
     this._hasFocus = true;
 
@@ -177,7 +178,7 @@ wushApp.controller("wushController", function($http, $scope, $rootScope, $cookie
     this.setupSocket = function() {
         // Set up the socket connection
         /* global io */
-        this.socket = io.connect("", {query: "user=" + this.userInfo.id});
+        this.socket = io.connect(this._socketUrl, {query: "user=" + this.userInfo.id});
         
         // Connection successful
         this.socket.on('connect', function () {
@@ -254,6 +255,7 @@ wushApp.controller("wushController", function($http, $scope, $rootScope, $cookie
     $http.get("config.json")
         .success(function(data) {
             self._baseTitle = data.name;
+            self._socketUrl = data.apiurl;
             document.title = data.name;
 
             self._isReady = true;
