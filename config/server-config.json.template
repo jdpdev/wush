@@ -9,11 +9,16 @@
 	"socket": {
 		"ip": "127.0.0.1",
 		"port": 3000,
-		"from": ""
+		"allowedOrigins": ["localhost"]
 	},
 
 	"email": {
 		"send": true,
-		"module": ""
+		"module": "",
+		"from": ""
+	},
+
+	"digest": {
+		"rate": 10000
 	}
 }
