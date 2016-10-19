@@ -7,7 +7,12 @@
     "type": "git",
     "url": "https://github.com/dupersaurus/wush.git"
   },
-  "author": "Jason DuPertuis <dupersaurus@gmail.com>",
+  "author": "Jason DuPertuis <jdpdev@jdpdev.net>",
+  "scripts": {
+    "dev": "nodejs-dashboard -- node server.js --env=DEV",
+    "test": "nodejs-dashboard -- node server.js --env=TEST",
+    "live": "forever start forever/setup.json"
+  },
   "dependencies": {
     "angular-marked": "^1.2.1",
     "async": "~0.2.8",
@@ -27,6 +32,7 @@
     "socket.io": "^1.4.5"
   },
   "devDependencies": {
+    "nodejs-dashboard": "^0.1.1",
     "nodemailer-mailgun-transport": "^1.2.0"
   }
 }
