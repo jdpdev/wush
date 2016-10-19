@@ -13,6 +13,7 @@ var _universe = require("./universe-manager");
 var async = require('async');
 var socketio = require('socket.io');
 var express = require('express');
+var cors = require('express-cors'); 
 
 var Users = new users();
 
@@ -74,6 +75,19 @@ passport.deserializeUser(function(id, done) {
 var app = express();
 
 app.configure(function() {
+  app.use(cors(
+    {
+      allowedOrigins: serverConfig.socket.allowedOrigins,
+      methods: ["GET", "POST", "OPTIONS"],
+      maxAge: 3600
+    }
+  ));
+
+  app.use('/', function(req, res, next) {
+    res.header("Access-Control-Allow-Credentials", "true");
+    next();
+  });
+
   app.use(express.static(path.resolve(__dirname, 'client')));
   app.use(express.cookieParser());
   app.use(express.bodyParser());
