@@ -109,7 +109,9 @@ wushApp.controller("roomController", function($scope, $http, $route, $routeParam
         // Success
         function (response) {
             if (response.success) {
-                self.poses = response.poses;
+                $scope.$apply(function() {
+                    self.poses = response.poses;
+                });
             } else {
                 console.log(response);
             }
@@ -190,11 +192,13 @@ wushApp.controller("roomController", function($scope, $http, $route, $routeParam
         postServer("room/relocate", {character: this.characterToMove.id, room: this.info.id}).then(
             function(response) {
                 if (response.success) {
-                    self.characters.push(self.characterToMove);
-                    self.playerCharacters.push(self.characterToMove);
-                    
-                    var index = self.missingCharacters.indexOf(self.characterToMove);
-                    self.missingCharacters.splice(index, 1);
+                    $scope.$apply(function() {
+                        self.characters.push(self.characterToMove);
+                        self.playerCharacters.push(self.characterToMove);
+                        
+                        var index = self.missingCharacters.indexOf(self.characterToMove);
+                        self.missingCharacters.splice(index, 1);
+                    });
                 } else {
                     console.log(response);
                 }
