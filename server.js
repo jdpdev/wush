@@ -1,3 +1,16 @@
+var argv = require('minimist')(process.argv.slice(2));
+console.dir(argv);
+
+if (argv["env"]) {
+  if (argv["env"] == "DEV") {
+    console.log("Running in DEV");
+    require("nodejs-dashboard");
+  } else if (argv["env"] == "TEST") {
+    console.log("Running in TEST");
+    require("nodejs-dashboard");
+  }
+}
+
 //
 // # SimpleServer
 //
