@@ -65,7 +65,7 @@ wushApp.run(function($rootScope, $location, $anchorScroll, $routeParams) {
 });
 
 // Main app controller
-wushApp.controller("wushController", function($http, $scope, $rootScope, $cookies, $controller, $route, $pageVisibility, $location, $sce) {
+wushApp.controller("wushController", function($http, $scope, $rootScope, $cookies, $controller, $route, $pageVisibility, $location, $sce, hasCharacters, getCurrentUser) {
     var self = this;
 
     this.userInfo = null;
@@ -128,9 +128,6 @@ wushApp.controller("wushController", function($http, $scope, $rootScope, $cookie
      * @param {Object} user [description]
      */
     this.setUserInfo = function(user) {
-        this.userInfo = user;
-        $cookies.putObject("wushUserInfo", this.userInfo);
-        
         if (this.socket == null) {
             this.setupSocket();
         }
@@ -140,29 +137,31 @@ wushApp.controller("wushController", function($http, $scope, $rootScope, $cookie
      * Returns the user info object
      * @return {Object} [description]
      */
-    this.getUserInfo = function() {
+    /*this.getUserInfo = function() {
         if (this.userInfo == null) {
             this.userInfo = $cookies.getObject("wushUserInfo");
         }
         
         return this.userInfo;
-    }
+    }*/
 
     /**
      * Returns if the user has characters
      * @return {Boolean} Whether the user has characters
      */
-    this.hasCharacters = function() {
-        if (this.userInfo == null) {
+    this.doesHaveCharacters = function() {
+        return hasCharacters();
+    }
+
+    /*this.addCharacter = function(character) {
+        var user = getCurrentUser();
+
+        if (user == null) {
             return true;
         }
 
-        return this.userInfo.characters && this.userInfo.characters.length > 0;
-    }
-
-    this.addCharacter = function(character) {
-        this.userInfo.characters.push(character);
-    }
+        user.characters.push(character);
+    }*/
     
     /**
      * Returns the active socket connection to the server
@@ -176,9 +175,13 @@ wushApp.controller("wushController", function($http, $scope, $rootScope, $cookie
      * Setup socket connection with the server
      */
     this.setupSocket = function() {
+        if (!getCurrentUser()) {
+            return;
+        }
+
         // Set up the socket connection
         /* global io */
-        this.socket = io.connect(this._socketUrl, {query: "user=" + this.userInfo.id});
+        this.socket = io.connect(this._socketUrl, {query: "user=" + getCurrentUser().id});
         
         // Connection successful
         this.socket.on('connect', function () {

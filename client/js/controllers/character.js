@@ -15,7 +15,9 @@ wushApp.controller("characterController", function($scope, $http, $route, $route
         
         // Success
         function (response) {
-            self.info = response.data.character;
+            $scope.$apply(function() {
+                self.info = response.character;
+            });
         },
         
         // Error
@@ -36,12 +38,12 @@ wushApp.controller("characterController", function($scope, $http, $route, $route
                     self.info.description = self.newDescription;
                     self.newDescription = "";
                 } else {
-                    alert(response.data.error);
+                    alert(response.error);
                 }
             },
             
             function (response) {
-                alert(response.data.error);
+                alert(response.error);
             }
         );
     }

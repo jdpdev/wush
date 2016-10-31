@@ -1,5 +1,5 @@
 /* global wushApp */
-wushApp.controller("roomController", function($scope, $http, $route, $routeParams, $location, getServer, postServer) {
+wushApp.controller("roomController", function($scope, $http, $route, $routeParams, $location, getServer, postServer, getCurrentUser) {
     var self = this;
 
     this.fatalError = null;
@@ -68,7 +68,7 @@ wushApp.controller("roomController", function($scope, $http, $route, $routeParam
                 
                 // Find the user's characters in the room
                 // Needs to happen even if nobody is in the room
-                var userChars = $scope.app.getUserInfo().characters;
+                var userChars = getCurrentUser().characters;
                 
                 for (var i = 0; i < userChars.length; i++) {
                     var bFound = false;
@@ -146,7 +146,7 @@ wushApp.controller("roomController", function($scope, $http, $route, $routeParam
             self.poses.unshift(pose);  
         });
         
-        $scope.app.getSocket().emit("update last seen", {owner: $scope.app.getUserInfo().id, room: self.info.id});
+        $scope.app.getSocket().emit("update last seen", {owner: getCurrentUser().id, room: self.info.id});
     }
     
     // Send a new pose to the server
@@ -211,7 +211,7 @@ wushApp.controller("roomController", function($scope, $http, $route, $routeParam
     }
 
     this.isUserCharacter = function(char) {
-        return $scope.app.getUserInfo().id == char.owner;
+        return getCurrentUser().id == char.owner;
     }
     
     this.enterRoom();

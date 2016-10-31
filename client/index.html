@@ -18,6 +18,7 @@
 
     <script src="/js/app.js"></script>
     <script src="/js/services/server.js"></script>
+    <script src="/js/services/current-user.js"></script>
     <script src="/js/controllers/login.js"></script>
     <script src="/js/controllers/dashboard.js"></script>
     <script src="/js/controllers/room.js"></script>
@@ -62,7 +63,7 @@
           </div>
         </nav>
 
-        <div class="alert alert-danger" ng-hide="app.hasCharacters()">
+        <div class="alert alert-danger" ng-hide="app.doesHaveCharacters()">
           <b><i class="fa fa-exclamation"></i></b> You do not have any characters to post with! Visit your <a href="#/">profile</a> to create your first character.
         </div>
       </header>
