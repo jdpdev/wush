@@ -24,7 +24,7 @@ wushApp.config(function($routeProvider, $locationProvider) {
     })
 
     // route for the about page
-    .when('/login', {
+    .when('/login/:newaccount?', {
         templateUrl : 'pages/login.html',
         controller  : 'loginController as login'
     })
