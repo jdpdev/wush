@@ -5,8 +5,20 @@ var wushApp = angular.module("wushApp", ["ngRoute", 'ui.bootstrap', "ngCookies",
 wushApp.config(function($routeProvider, $locationProvider) {
     $routeProvider
 
-    // route for the home page
+    // server home page
     .when('/', {
+        templateUrl : 'pages/home.html',
+        controller  : 'homeController as home'
+    })
+
+    // server home page
+    .when('/home', {
+        templateUrl : 'pages/home.html',
+        controller  : 'homeController as home'
+    })
+
+    // route for the user's profile
+    .when('/profile', {
         templateUrl : 'pages/profile.html',
         controller  : 'profileController as profile'
     })
@@ -48,7 +60,7 @@ wushApp.config(function($routeProvider, $locationProvider) {
     })
     
     .otherwise({
-        redirectTo: '/login'
+        redirectTo: '/home'
     });
     
     //$locationProvider.html5Mode(true);
@@ -57,15 +69,15 @@ wushApp.config(function($routeProvider, $locationProvider) {
 wushApp.run(function($rootScope, $location, $anchorScroll, $routeParams) {
     
     // Restrict stores to issues
-    $rootScope.$on('$routeChangeStart', function(event, next, current) {
+    /*$rootScope.$on('$routeChangeStart', function(event, next, current) {
         if (!$rootScope.isLoggedIn) {
-            $location.path( "/login" );
+            $location.path( "/home" );
         }
-    });
+    });*/
 });
 
 // Main app controller
-wushApp.controller("wushController", function($http, $scope, $rootScope, $cookies, $controller, $route, $pageVisibility, $location, $sce, hasCharacters, getCurrentUser) {
+wushApp.controller("wushController", function($http, $scope, $rootScope, $cookies, $controller, $route, $pageVisibility, $location, $sce, hasCharacters, getCurrentUser, isLoggedIn, logoutUser, loadUser) {
     var self = this;
 
     this.userInfo = null;
@@ -97,25 +109,41 @@ wushApp.controller("wushController", function($http, $scope, $rootScope, $cookie
         return hexToLuminosity(hex) >= 0.5 ? "#000" : "#fff";
     }
 
+    this.login = function() {
+        $location.path("/login");
+    }
+
     /**
      * Log out the current user
      */
     this.logout = function() {
-        if (!this.userInfo) {
-            return;
-        }
 
-        $http.get("/api/logout", {withCredentials: true}).then(
+        logoutUser().then(
             function(response) {
-                self.userInfo = null;
                 self.socket.disconnect();
-                $rootScope.isLoggedIn = false;
-                $location.path("/login");
+                $location.path("/home");
             },
 
             // Error
             function(response) {
                 console.error(response);
+            }
+        );
+    }
+
+    this.loginComplete = function() {
+        loadUser().then(
+                
+            // Success
+            function(response) {
+                self.setupSocket();
+                $rootScope.isLoggedIn = true;
+                $location.path( "/profile" );
+            },
+            
+            // Error
+            function(response) {
+                console.log("server error");
             }
         );
     }
@@ -144,6 +172,10 @@ wushApp.controller("wushController", function($http, $scope, $rootScope, $cookie
         
         return this.userInfo;
     }*/
+
+    this.hasLoggedIn = function() {
+        return isLoggedIn();
+    }
 
     /**
      * Returns if the user has characters

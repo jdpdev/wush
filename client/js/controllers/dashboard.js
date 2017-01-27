@@ -1,5 +1,5 @@
 /* global wushApp */
-wushApp.controller("profileController", function($scope, $http, $location, $uibModal, $sce, getServer, setCurrentUser, getCurrentUser) {
+wushApp.controller("profileController", function($scope, $http, $location, $uibModal, $sce, getServer, setCurrentUser, getCurrentUser, loadUser) {
     var self = this;
     
     this.username = "";
@@ -18,33 +18,20 @@ wushApp.controller("profileController", function($scope, $http, $location, $uibM
         if (user) {
             this.username = user.name;
             this.characters = user.characters;
+            this.getLastSeenPoses();
         } else {
 
             // Request profile info
-            getServer("users/info", {}).then(
+            loadUser().then(
                 
                 // Success
                 function(response) {
-                    if (response.success) {
-                        
-                        $scope.$apply(function() {
-                            self.username = response.name;
-                            self.characters = response.characters;
-                            
-                            /* global app */
-                            //$scope.app.setUserInfo({name: response.name, id: response.id, characters: self.characters});
-                            setCurrentUser({name: response.name, id: response.id, characters: self.characters});
-                            $scope.app.setUserInfo(user);
+                    $scope.$apply(function() {
+                        self.username = response.name;
+                        self.characters = response.characters;
 
-                            self.getLastSeenPoses();
-                        });
-                    } else {
-                        console.log("data error");
-                        
-                        if (!response.authenticated) {
-                            $location.path("/login");
-                        }
-                    }
+                        self.getLastSeenPoses();
+                    });
                 },
                 
                 // Error

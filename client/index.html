@@ -19,6 +19,7 @@
     <script src="/js/app.js"></script>
     <script src="/js/services/server.js"></script>
     <script src="/js/services/current-user.js"></script>
+    <script src="/js/controllers/home.js"></script>
     <script src="/js/controllers/login.js"></script>
     <script src="/js/controllers/dashboard.js"></script>
     <script src="/js/controllers/room.js"></script>
@@ -46,19 +47,21 @@
         <nav class="navbar navbar-default">
           <div class="container">
               <div class="navbar-header">
-                  <a class="navbar-brand" href="/">{{app._baseTitle}}</a>
+                  <a class="navbar-brand" href="#/home">{{app._baseTitle}}</a>
               </div>
           
               <ul class="nav navbar-nav navbar-right">
-                  <li><a href="#/"><i class="fa fa-home"></i> Profile</a></li>
-                  <!--<li><a href="#/characters"><i class="fa fa-street-view"></i> My Characters</a></li>-->
-                  <li>
+                  <li ng-show="app.hasLoggedIn()"><a href="#/"><i class="fa fa-home"></i> Profile</a></li>
+                  <li ng-show="app.hasLoggedIn()">
                     <a href="#/places">
                       <i class="fa fa-map-o"></i> Worlds 
                       <span ng-show="app.getQueueSize() > 0" class="badge">{{app.getQueueSize()}}</span>
                     </a>
                   </li>
-                  <li ng-show="app.userInfo"><a href="#/" ng-click="app.logout()"><i class="fa fa-power-off"></i> Log Out</a></li>
+                  <li ng-show="app.hasLoggedIn()"><a href="#/" ng-click="app.logout()"><i class="fa fa-power-off"></i> Log Out</a></li>
+                  <li ng-hide="app.hasLoggedIn()">
+                    <button type="button" class="btn btn-default navbar-btn" ng-click="app.login()"><i class="fa fa-power-on"></i> Log In</button>
+                  </li>
               </ul>
           </div>
         </nav>

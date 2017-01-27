@@ -33,8 +33,10 @@ wushApp.controller("roomController", function($scope, $http, $route, $routeParam
         // Success
         function (response) {
             if (response.success) {
-                self.info = response.room;
-                self.world = response.world;
+                $scope.$apply(function() {
+                    self.info = response.room;
+                    self.world = response.world;
+                });
             } else {
                 console.log(response.error);    
                 

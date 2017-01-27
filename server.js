@@ -171,6 +171,19 @@ app.get("/api/logout", function(req, res) {
   res.redirect("/");
 });
 
+app.get("/api/motd", function(req, res) {
+  if (_currentMotd) {
+    res.json({success: true, motd: _currentMotd});
+  } else {
+    var request = db.query("select message from motd order by date desc limit 0,1", {}, function(err, rows, fields) {
+      if (!err || rows.length > 0) {
+        _currentMotd = rows[0].message;
+        res.json({success: true, motd: _currentMotd});
+      }
+    });
+  }
+});
+
 // Load universe state
 _universe.initialize(app, ensureAuthenticated, db, EmailManager)
   .then(function(success) {

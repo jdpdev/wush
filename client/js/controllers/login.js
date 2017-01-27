@@ -15,8 +15,10 @@ wushApp.controller("loginController", function($scope, $http, $rootScope, $locat
         postServer("login", {username: this.username, password: this.password}).then(
             function(response) {
                 $scope.$apply(function() {
-                    $rootScope.isLoggedIn = true;
-                    $location.path( "/" );
+
+                    // TODO Refactor into service
+                    $scope.app.loginComplete();
+                    
                 });
             },
             
@@ -37,8 +39,8 @@ wushApp.controller("loginController", function($scope, $http, $rootScope, $locat
             function(response) {
                 if (response.authenticated) {
                     $scope.$apply(function() {
-                        $rootScope.isLoggedIn = true;
-                        $location.path( "/" );
+                        // TODO refactor into service
+                        $scope.app.loginComplete();
                     });
                 } else {
                     $scope.$apply(function() {
