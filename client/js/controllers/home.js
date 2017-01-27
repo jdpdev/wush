@@ -23,7 +23,9 @@ wushApp.controller("homeController", function($scope, $http, $location, $uibModa
             // Error
             function (response) {
                 console.log(response);
-                this._serverError = true;
+                $scope.$apply(function() {
+                    this._serverError = true;
+                });
             }
         );
 	}
