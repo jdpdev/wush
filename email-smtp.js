@@ -24,8 +24,10 @@ var SMTPEmail = function() {
 }
 
 SMTPEmail.prototype.sendMessage = function(to, from, subject, html) {
-	return new Promise(function(resolve, reject) {
-		this._transport.sendMail(
+	
+
+	//return new Promise(function(resolve, reject) {
+		this._transporter.sendMail(
 			{
 				from: from,
 				to: to,
@@ -34,14 +36,16 @@ SMTPEmail.prototype.sendMessage = function(to, from, subject, html) {
 			}, 
 			function (err, info) {
 				if (err) {
+					console.log("sendMessage >> rejected " + new Date().toUTCString() + " (" + to + ": " + subject + ") " + err);
 					reject(err);
 				}
 				else {
+					console.log("sendMessage >> resolved " + info);
 					resolve(info);
 				}
 			}
 		);
-	};
+	//});
 }
 
-module.exports = MailgunEmail;
+module.exports = SMTPEmail;
