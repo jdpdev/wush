@@ -61,39 +61,39 @@ wushApp.controller("roomController", function($scope, $http, $route, $routeParam
         // Success
         function (response) {
             if (response.success) {
-                self.characters = response.characters;
-                
-                if (self.characters.length > 0) {
-                    self.poseData.character = self.characters[0].id;
-                    self.poseData.characterName = self.characters[0].name;
-                }
-                
-                // Find the user's characters in the room
-                // Needs to happen even if nobody is in the room
-                var userChars = getCurrentUser().characters;
-                
-                for (var i = 0; i < userChars.length; i++) {
-                    var bFound = false;
+                $scope.$apply(function() {
+                    self.characters = response.characters;
                     
-                    for (var j = 0; j < self.characters.length; j++) {
-                        if (self.characters[j].id == userChars[i].id) {
-                            self.playerCharacters.push(self.characters[j]);
-                            bFound = true;
-                            break;
-                        }
-                    }   
-                    
-                    if (!bFound) {
-                        self.missingCharacters.push(userChars[i]);
+                    if (self.characters.length > 0) {
+                        self.poseData.character = self.characters[0].id;
+                        self.poseData.characterName = self.characters[0].name;
                     }
-                }
-                
-                // Auto-select for posing
-                if (self.playerCharacters.length > 0) {
-                    self.selectedCharacter = self.playerCharacters[0];
-                }
-                
-                console.log(self.missingCharacters);
+                    
+                    // Find the user's characters in the room
+                    // Needs to happen even if nobody is in the room
+                    var userChars = getCurrentUser().characters;
+                    
+                    for (var i = 0; i < userChars.length; i++) {
+                        var bFound = false;
+                        
+                        for (var j = 0; j < self.characters.length; j++) {
+                            if (self.characters[j].id == userChars[i].id) {
+                                self.playerCharacters.push(self.characters[j]);
+                                bFound = true;
+                                break;
+                            }
+                        }   
+                        
+                        if (!bFound) {
+                            self.missingCharacters.push(userChars[i]);
+                        }
+                    }
+                    
+                    // Auto-select for posing
+                    if (self.playerCharacters.length > 0) {
+                        self.selectedCharacter = self.playerCharacters[0];
+                    }
+                });
             } else {
                 console.log(response);
             }
