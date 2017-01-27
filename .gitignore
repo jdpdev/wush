@@ -39,3 +39,4 @@ jspm_packages
 # Ignore local config files
 config/*.json
 client/config.json
+forever/
