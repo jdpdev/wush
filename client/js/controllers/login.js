@@ -1,12 +1,13 @@
 // Login controller
 /* global wushApp */
-wushApp.controller("loginController", function($scope, $http, $rootScope, $location, getServer, postServer) {
+wushApp.controller("loginController", function($scope, $http, $rootScope, $routeParams, $location, getServer, postServer) {
     var self = this;
     this.username = "";
     this.password = "";
     this.allowLogin = false;
     this.loginError = false;
     this.pendingLogin = false;
+    this.newAccount = false;
     
     this.submit = function() {
         this.loginError = false;
@@ -14,12 +15,8 @@ wushApp.controller("loginController", function($scope, $http, $rootScope, $locat
 
         postServer("login", {username: this.username, password: this.password}).then(
             function(response) {
-                $scope.$apply(function() {
-
-                    // TODO Refactor into service
-                    $scope.app.loginComplete();
-                    
-                });
+                // TODO Refactor into service
+                $scope.app.loginComplete();
             },
             
             function(response) {
@@ -38,10 +35,7 @@ wushApp.controller("loginController", function($scope, $http, $rootScope, $locat
         getServer("authenticated", {}).then(
             function(response) {
                 if (response.authenticated) {
-                    $scope.$apply(function() {
-                        // TODO refactor into service
-                        $scope.app.loginComplete();
-                    });
+                    $scope.app.loginComplete();
                 } else {
                     $scope.$apply(function() {
                         self.allowLogin = true;
@@ -55,5 +49,9 @@ wushApp.controller("loginController", function($scope, $http, $rootScope, $locat
                 });
             }
         )
+    }
+
+    if ($routeParams.newaccount) {
+        this.newAccount = true;
     }
 });

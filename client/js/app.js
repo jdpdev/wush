@@ -24,7 +24,7 @@ wushApp.config(function($routeProvider, $locationProvider) {
     })
 
     // route for the about page
-    .when('/login', {
+    .when('/login/:newaccount?', {
         templateUrl : 'pages/login.html',
         controller  : 'loginController as login'
     })
@@ -66,14 +66,26 @@ wushApp.config(function($routeProvider, $locationProvider) {
     //$locationProvider.html5Mode(true);
 });
 
-wushApp.run(function($rootScope, $location, $anchorScroll, $routeParams) {
+wushApp.run(function($rootScope, $location, $anchorScroll, $routeParams, getCurrentUser) {
     
-    // Restrict stores to issues
-    /*$rootScope.$on('$routeChangeStart', function(event, next, current) {
-        if (!$rootScope.isLoggedIn) {
+    $rootScope.$on('$routeChangeStart', function(event, next, current) {
+        //console.log("routeChangeStart >> " + getCurrentUser() + " (" + current + " >> " + next + ")");
+        /*if (!$rootScope.isLoggedIn) {
             $location.path( "/home" );
+        }*/
+
+        if (getCurrentUser() == null) {
+            switch (next.$$route.originalPath) {
+                case "/room/:id":
+                case "/character/:id":
+                case "/places/:id":
+                case "/places":
+                case "/profile":
+                    $location.path( "/home" );
+                    break;
+            }
         }
-    });*/
+    });
 });
 
 // Main app controller
@@ -232,6 +244,23 @@ wushApp.controller("wushController", function($http, $scope, $rootScope, $cookie
             //console.log(pose);
             $route.current.scope.room.receiveNewPose(pose);
             self.queueActivity();
+        });   
+        
+        // Notification that a character has entered the room 
+        this.socket.on('characterenter', function (character) {
+            //console.log(pose);
+            $route.current.scope.room.enterNewCharacter(character.character);
+            self.queueActivity();
+        });   
+        
+        // Notification that a character has left the room 
+        this.socket.on('characterleave', function (character) {
+            //console.log(pose);
+            $scope.$apply(function() {
+                console.log("characterleave >> " + character);
+                $route.current.scope.room.removeCharacter(character.characterid);
+                self.queueActivity();
+            });
         });   
 
         this.socket.on("motd", function(motd) {

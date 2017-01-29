@@ -32,11 +32,11 @@ MailgunEmail.prototype.sendMessage = function(to, from, subject, html) {
 			}, 
 			function (err, info) {
 				if (err) {
-					console.log("mailgun error >> " + JSON.stringify(err));
+					console.log("sendMessage >> rejected " + new Date().toUTCString() + " (" + to + ": " + subject + ") " + err);
 					//reject(err);
 				}
 				else {
-					//console.log("mailgun success >> " + info);
+					//console.log("sendMessage >> resolved " + info);
 					//resolve(info);
 				}
 			}
