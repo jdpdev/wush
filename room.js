@@ -47,8 +47,6 @@ Room.prototype.getMembers = function(db) {
                 resolve(chars);
             }
         }); 
-        
-        console.log(test.sql);
     });
 }
 
