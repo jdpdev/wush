@@ -62,37 +62,18 @@ wushApp.controller("roomController", function($scope, $http, $route, $routeParam
         function (response) {
             if (response.success) {
                 $scope.$apply(function() {
-                    self.characters = response.characters;
+                    self.characters = [];
+
+                    for (var i = 0; i < response.characters.length; i++) {
+                        self.addCharacterToRoom(response.characters[i]);   
+                    }
+
+                    self.processMissingCharacters();
                     
-                    if (self.characters.length > 0) {
+                    /*if (self.characters.length > 0) {
                         self.poseData.character = self.characters[0].id;
                         self.poseData.characterName = self.characters[0].name;
-                    }
-                    
-                    // Find the user's characters in the room
-                    // Needs to happen even if nobody is in the room
-                    var userChars = getCurrentUser().characters;
-                    
-                    for (var i = 0; i < userChars.length; i++) {
-                        var bFound = false;
-                        
-                        for (var j = 0; j < self.characters.length; j++) {
-                            if (self.characters[j].id == userChars[i].id) {
-                                self.playerCharacters.push(self.characters[j]);
-                                bFound = true;
-                                break;
-                            }
-                        }   
-                        
-                        if (!bFound) {
-                            self.missingCharacters.push(userChars[i]);
-                        }
-                    }
-                    
-                    // Auto-select for posing
-                    if (self.playerCharacters.length > 0) {
-                        self.selectedCharacter = self.playerCharacters[0];
-                    }
+                    }*/
                 });
             } else {
                 console.log(response);
@@ -139,6 +120,88 @@ wushApp.controller("roomController", function($scope, $http, $route, $routeParam
     
     this.leaveRoom = function() {
         $scope.app.getSocket().emit("leaveroom", this.info.id);
+    }
+
+    this.enterNewCharacter = function(character) {
+        $scope.$apply(function() {
+            self.addCharacterToRoom(character);
+            self.processMissingCharacters();
+        });
+    }
+
+    this.addCharacterToRoom = function(character) {
+        this.characters.push(character);
+
+        // Find the user's characters in the room
+        // Needs to happen even if nobody is in the room
+        var userChars = getCurrentUser().characters;
+        
+        for (var i = 0; i < userChars.length; i++) {
+            var bFound = false;
+
+            if (userChars[i].id == character.id) {
+                this.registerPlayerCharacter(character);
+                break;
+            }
+        }
+
+        if (this.playerCharacters.length == 1) {
+            this.selectedCharacter = this.playerCharacters[0];
+        }
+    }
+
+    this.registerPlayerCharacter = function(character) {
+        for (var i = 0; i < this.playerCharacters.length; i++) {
+            if (this.playerCharacters[i].id == character.id) {
+                return;
+            }
+        }
+
+        this.playerCharacters.push(character);
+    }
+
+    this.processMissingCharacters = function() {
+        this.missingCharacters = [];
+        var userChars = getCurrentUser().characters;
+        
+        if (this.playerCharacters.length == 0) {
+            for (var i = 0; i < userChars.length; i++) {
+                this.missingCharacters.push(userChars[i]);
+            }
+        } else {
+            for (var i = 0; i < userChars.length; i++) {
+                var bFound = false;
+
+                for (var j = 0; j < this.playerCharacters.length; j++) {
+                    if (this.playerCharacters[j].id == userChars[i].id) {
+                        bFound = true;
+                    }
+
+                    if (!bFound) {
+                        this.missingCharacters.push(userChars[i]);
+                    }
+                }
+            }
+        }
+
+        if (this.missingCharacters.length > 0) {
+            this.characterToMove = this.missingCharacters[0];
+        }
+    }
+
+    this.removeCharacter = function(characterid) {
+        var index = -1;
+
+        for (var i = 0; i < this.characters.length; i++) {
+            if (this.characters[i].id == characterid) {
+                index = i;
+                break;
+            }
+        }
+
+        if (index != -1) {
+            this.characters.splice(index, 1);
+        }
     }
     
     // New pose received from a live connection
@@ -194,13 +257,13 @@ wushApp.controller("roomController", function($scope, $http, $route, $routeParam
         postServer("room/relocate", {character: this.characterToMove.id, room: this.info.id}).then(
             function(response) {
                 if (response.success) {
-                    $scope.$apply(function() {
-                        self.characters.push(self.characterToMove);
-                        self.playerCharacters.push(self.characterToMove);
+                    /*$scope.$apply(function() {
+                        //self.characters.push(self.characterToMove);
+                        //self.playerCharacters.push(self.characterToMove);
                         
                         var index = self.missingCharacters.indexOf(self.characterToMove);
                         self.missingCharacters.splice(index, 1);
-                    });
+                    });*/
                 } else {
                     console.log(response);
                 }

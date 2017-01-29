@@ -2,6 +2,7 @@ var Room = require("./room");
 var Character = require("./character");
 var PoseManager = require("./poseManager");
 var WorldManager = require("./worldManager");
+var CharacterManager = require("./characterManager");
 //PoseManager = new PoseManager();
 
 function RoomManager() {
@@ -252,6 +253,8 @@ RoomManager.prototype.relocateCharacter = function(req, res, db) {
                 res.json({success: false, authenticated: true, error: err});
                 return;
             }
+
+            self.broadcastRoomLeave(req.body.room, req.body.character);
           
             var query = "INSERT INTO locations SET entertime=NOW(), ?";
             var inputs = {"character": req.body.character, "room": req.body.room};
@@ -260,12 +263,22 @@ RoomManager.prototype.relocateCharacter = function(req, res, db) {
                if (err2) {
                    res.json({success: false, authenticated: true, error: err2});
                } else {
-                   res.json({success: true, authenticated: true});
+                    res.json({success: true, authenticated: true});
+                    self.broadcastRoomEnter(req.body.room, req.body.character);
                }
             });
         });
     //});
 };
+
+RoomManager.prototype.broadcastRoomEnter = function(room, charid) {
+    var character = CharacterManager.getCharacter(charid);
+    this.io.sockets["in"](room).emit("characterenter", {character: character});
+}
+
+RoomManager.prototype.broadcastRoomLeave = function(room, charid) {
+    this.io.sockets["in"](room).emit("characterleave", {characterid: charid});
+}
 
 var _instance = null;
 

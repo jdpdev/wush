@@ -233,6 +233,23 @@ wushApp.controller("wushController", function($http, $scope, $rootScope, $cookie
             $route.current.scope.room.receiveNewPose(pose);
             self.queueActivity();
         });   
+        
+        // Notification that a character has entered the room 
+        this.socket.on('characterenter', function (character) {
+            //console.log(pose);
+            $route.current.scope.room.enterNewCharacter(character.character);
+            self.queueActivity();
+        });   
+        
+        // Notification that a character has left the room 
+        this.socket.on('characterleave', function (character) {
+            //console.log(pose);
+            $scope.$apply(function() {
+                console.log("characterleave >> " + character);
+                $route.current.scope.room.removeCharacter(character.characterid);
+                self.queueActivity();
+            });
+        });   
 
         this.socket.on("motd", function(motd) {
             //self._motd = motd.message;
