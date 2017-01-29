@@ -10,24 +10,22 @@ var EmailManager = function() {
 EmailManager.prototype.config = function(serverConfig) {
 	this._sendEmails = serverConfig.send;
 	this._serverConfig = serverConfig;
+	this._emailModule = null;
 
-	var emailVersion = require("./" + serverConfig.module);
-	this._emailModule = new emailVersion();
+	if (serverConfig.module) {
+		var emailVersion = require("./" + serverConfig.module);
+		this._emailModule = new emailVersion();
+	} else {
+		console.log("Not using email");
+	}
 }
 
 EmailManager.prototype.sendMessage = function(to, subject, html) {
-	if (!this._sendEmails) {
+	if (!this._sendEmails || !this._emailModule) {
 		return;
 	}
 
-	//this.mailgunSendMessage(to, subject, html);
-	this._emailModule.sendMessage(to, this._serverConfig.from, subject, html);/*
-	.then(function(response) {
-
-	})
-	.catch(function(error) {
-		console.error("EmailManager::sendMessage error >> " + JSON.stringify(error));
-	});*/
+	this._emailModule.sendMessage(to, this._serverConfig.from, subject, html);
 }
 
 var _instance = null;
