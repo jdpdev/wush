@@ -66,14 +66,26 @@ wushApp.config(function($routeProvider, $locationProvider) {
     //$locationProvider.html5Mode(true);
 });
 
-wushApp.run(function($rootScope, $location, $anchorScroll, $routeParams) {
+wushApp.run(function($rootScope, $location, $anchorScroll, $routeParams, getCurrentUser) {
     
-    // Restrict stores to issues
-    /*$rootScope.$on('$routeChangeStart', function(event, next, current) {
-        if (!$rootScope.isLoggedIn) {
+    $rootScope.$on('$routeChangeStart', function(event, next, current) {
+        //console.log("routeChangeStart >> " + getCurrentUser() + " (" + current + " >> " + next + ")");
+        /*if (!$rootScope.isLoggedIn) {
             $location.path( "/home" );
+        }*/
+
+        if (getCurrentUser() == null) {
+            switch (next.$$route.originalPath) {
+                case "/room/:id":
+                case "/character/:id":
+                case "/places/:id":
+                case "/places":
+                case "/profile":
+                    $location.path( "/home" );
+                    break;
+            }
         }
-    });*/
+    });
 });
 
 // Main app controller
