@@ -10,7 +10,15 @@ var World = function(row) {
     this.name = row.name;
     this.description = row.description;
     this.color = row.color;
+    this.creator = row.creator;
+    this.createdTime = row.createdTime;
     this.rooms = {};
+}
+
+World.prototype.update = function(name, description, color) {
+	this.name = name;
+	this.description = description;
+	this.color = color;
 }
 
 World.prototype.addRoom = function(room) {

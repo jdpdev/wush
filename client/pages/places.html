@@ -5,7 +5,14 @@
     padding: 5px;
   }
   
-  .world i {
+  .world i:nth-child(1) {
+      position: absolute;
+      top: 5px;
+      right: 25px;
+      cursor: pointer;
+  }
+  
+  .world i:nth-child(2) {
       position: absolute;
       top: 5px;
       right: 5px;
@@ -44,10 +51,15 @@
                 ng-repeat="world in places.worlds track by world.id">
                 
                 <div class="worldBorder" style="border-color: #{{world.color}};">
+                    <i class="fa fa-edit"
+                        style="color: {{app.getContrastColor(world.color)}}"
+                        ng-show="places.isWorldOwner(world)"
+                        ng-click="places.editWorld(world)"></i>
+
                     <i class="fa fa-eye"
                         style="color: {{app.getContrastColor(world.color)}}"
                         popover-trigger="mouseenter"
-                        popover-placement="left" 
+                        popover-placement="bottom" 
                         uib-popover="{{world.description}}"></i>
                     
                     <h5 style="background-color: #{{world.color}}; color: {{app.getContrastColor(world.color)}}">{{world.name}}</h5>
@@ -60,6 +72,40 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<div class="row" style="margin-top: 20px;">
+    <div class="col-sm-offset-1 col-sm-10">
+        <div class="well">
+            <h4>Create a New World</h4>
+
+            <form class="form-horizontal" ng-submit="places.createWorld()">
+                <div class="form-group">
+                    <label for="name" class="col-sm-2 control-label">Name</label>
+                    <div class="col-sm-4">
+                        <input type="text" id="name" name="name" class="form-control" ng-model="places.newWorld.name" />
+                    </div>
+                    <label for="name" class="col-sm-2 control-label">Color</label>
+                    <div class="col-sm-4">
+                        <input colorpicker type="text" class="form-control" ng-model="places.newWorld.color"  />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="description" class="col-sm-2 control-label">Description</label>
+                    <div class="col-sm-10">
+                        <textarea id="description" name="description" class="form-control" ng-model="places.newWorld.description" ></textarea>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-sm-4 col-sm-offset-2">
+                        <input type="submit" value="Create World" class="btn btn-primary" />
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 </div>

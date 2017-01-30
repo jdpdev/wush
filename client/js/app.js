@@ -1,5 +1,5 @@
 /* global angular */
-var wushApp = angular.module("wushApp", ["ngRoute", 'ui.bootstrap', "ngCookies", "angular-page-visibility", 'hc.marked']);
+var wushApp = angular.module("wushApp", ["ngRoute", 'ui.bootstrap', "ngCookies", "angular-page-visibility", 'hc.marked', "colorpicker.module"]);
 
 // configure our routes
 wushApp.config(function($routeProvider, $locationProvider) {
@@ -42,9 +42,9 @@ wushApp.config(function($routeProvider, $locationProvider) {
     })
 
     // route for the contact page
-    .when('/places/:id', {
-        templateUrl : 'pages/place.html',
-        controller  : 'placeController as place'
+    .when('/world/:id', {
+        templateUrl : 'pages/world.html',
+        controller  : 'worldController as world'
     })
 
     // route for the contact page

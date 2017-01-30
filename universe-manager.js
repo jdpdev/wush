@@ -31,11 +31,11 @@ UniverseManager.prototype.initialize = function(app, ensureAuthenticated, db, em
 	return new Promise(function(resolve, reject) {
 
 	// Load worlds
-		WorldManager.initialize(app, ensureAuthenticated, db)
+		WorldManager.initialize(self, app, ensureAuthenticated, db)
 			.then(function(success) {
 
 	// Load rooms
-				RoomManager.initialize(this, app, ensureAuthenticated, db)
+				RoomManager.initialize(self, app, ensureAuthenticated, db)
 				.then(function(success) {
 
 	// Load Characters
@@ -66,6 +66,11 @@ UniverseManager.prototype.initialize = function(app, ensureAuthenticated, db, em
 
 UniverseManager.prototype.getPoseManager = function() {
 	return PoseManager;
+}
+
+UniverseManager.prototype.getRoomManager = function() {
+	console.log("getRoomManager >> " + RoomManager);
+	return RoomManager;
 }
 
 UniverseManager.prototype.setSocket = function(io) {

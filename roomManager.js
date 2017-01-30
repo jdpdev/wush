@@ -165,6 +165,25 @@ RoomManager.prototype.loadCachedRoom = function(id) {
     }
 }
 
+/**
+ * Returns a list of rooms in a world
+ * @param  {number} worldId The id of the world
+ * @return {Room[]}         The member rooms
+ */
+RoomManager.prototype.getRoomsInWorld = function(worldId) {
+    console.log("getRoomsInWorld >> " + worldId);
+    var rooms = [];
+
+    for (var id in this.roomCache) {
+        console.log("getRoomsInWorld >> " + id);
+        if (this.roomCache[id].worldId == worldId) {
+            rooms.push(this.roomCache[id]);
+        }
+    }
+
+    return rooms;
+}
+
 RoomManager.prototype.loadRoomMembers = function(req, res, db) {
     this.loadRoom(db, req.query.id)
     .then(function(info) {

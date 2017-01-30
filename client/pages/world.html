@@ -1,0 +1,90 @@
+<div ng-hide="world.info">
+    <div class="row">
+        <div class="col-sm-12 text-center">
+            <i class="fa fa-3x fa-spin fa-spinner"></i>
+        </div>
+    </div>
+</div>
+
+<div ng-show="world.info">
+    <div class="row">
+        <div class="page-header col-md-12" style="background-color: #{{world.info.color}};">
+            <h3 style="color: {{app.getContrastColor(world.info.color)}}">
+                {{world.info.name}}
+            </h3>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-7">
+            <div class="row">
+                <div class="col-sm-12">
+                    <blockquote>
+                        <p>{{world.info.description}}</p>
+                    </blockquote>
+                </div>
+            </div>
+
+            <div class="row" style="margin-top: 30px;">
+                <div class="col-sm-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h2 class="panel-title">Edit World</h2>
+                        </div>
+                        <div class="panel-body">
+                            <form class="form-horizontal" ng-submit="world.submitEdit()">
+                                <div class="form-group">
+                                    <label for="name" class="col-sm-3 control-label">Name</label>
+                                    <div class="col-sm-4">
+                                        <input type="text" id="name" name="name" class="form-control" 
+                                            ng-model="world.newInfo.name" />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="color" class="col-sm-3 control-label">Color</label>
+                                    <div class="col-sm-4">
+                                        <input colorpicker id="color" type="text" class="form-control" 
+                                                ng-model="world.newInfo.color"  />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="description" class="col-sm-3 control-label">Description</label>
+                                    <div class="col-sm-9">
+                                        <textarea id="description" name="description" class="form-control" ng-model="world.newInfo.description">
+                                            
+                                        </textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-sm-4 col-sm-offset-3">
+                                        <input type="submit" value="Edit World" class="btn btn-primary" ng-disabled="world.pendingEdit" />
+                                    </div>
+                                </div>  
+                                <div class="form-group" ng-show="world.editError">
+                                    <div class="col-sm-12">
+                                        <div class="alert alert-danger">
+                                            <b>Unable to edit world!</b> {{world.editError}}
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-5">
+            <div class="panel panel-default">
+                <div class="panel-heading" style="background-color: #{{world.info.color}};">
+                    <h3 class="panel-title" style="color: {{app.getContrastColor(world.info.color)}}">Rooms</h3>
+                </div>
+                <div class="panel-body">
+                    <div ng-repeat="room in world.rooms track by room.id">
+                        <b>{{room.name}}</b>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
