@@ -1,0 +1,108 @@
+<style>
+  body {
+    padding-top: 60px;
+  }
+  
+  .roomInfo {
+    border: 2px solid #f0f;
+    border-radius: 10px;
+  }
+  
+  .page-header {
+    border-radius: 5px;
+  }
+  
+  .page-header h3 {
+      padding: 5px;
+  }
+  
+  .playerChar {
+    font-weight: bold;
+    color: #090;
+  }
+  
+  .moreInfo {
+    cursor: pointer;
+  }
+  
+  .pose {
+    margin-bottom: 5px;
+    padding: 5px;
+    border-bottom: 1px dotted #ddd;
+  }
+  
+  .pose:nth-child(even) {
+    background-color: #eee;
+  }
+  
+  .poseHead {
+    font-weight: bold;
+  }
+  
+  .poseBody {
+    
+  }
+  
+  .clickable {
+    cursor: pointer;
+  }
+  
+</style>
+
+  <div class="row" ng-show="room.fatalError">
+    <div class="page-header col-md-12">
+      <h3>
+        An error has occurred loading this page. Please notify your local friendly administrator with the following information:
+      </h3>
+
+      <div class="well">
+        {{room.fatalError.error}}<br/>
+        Room ID: {{room.info.id}}<br/>
+        Authenticated? {{room.fatalError.authenticated}}<br/>
+      </div>
+    </div>
+  </div>
+
+  <div ng-hide="room.fatalError">
+
+    <div class="row">
+      <div class="page-header col-md-12" style="background-color: #{{room.world.color}};">
+        <h3 style="color: {{app.getContrastColor(room.world.color)}}">
+          {{room.info.name}} 
+          <small style="color: {{app.getContrastColor(room.world.color)}}">[{{room.world.name}}]</small>
+        </h3>
+      </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-sm-6">
+            <h3>Edit Room</h3>
+
+            <form class="form-horizontal" ng-submit="room.editRoom()">
+                <div class="form-group">
+                    <label for="description" class="col-sm-3 control-label">Description</label>
+                    <div class="col-sm-9">
+                        <textarea ng-model="room.newInfo.description" class="form-control"></textarea>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-sm-offset-3 col-sm-4">
+                        <input type="submit" class="btn btn-primary" ng-disabled="room.pendingEdit" />
+                    </div>
+                </div>
+
+                <div class="form-group" ng-show="room.editError">
+                    <div class="col-sm-12">
+                        <div class="alert alert-danger">
+                            {{room.editError.error}}
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div> 
+        <div class="col-sm-6 text-right">
+            <button class="btn btn-primary" ng-click="room.goBack()">Back to Room</button>
+        </div> 
+    </div>
+  </div>

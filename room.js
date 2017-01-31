@@ -12,6 +12,14 @@ var Room = function(row) {
     this.name = row.name;
     this.description = row.description;
     this.worldId = row.world;
+    this.creator = row.creator;
+    this.createdTime = row.createdTime;
+}
+
+Room.prototype.update = function(name, description, worldId) {
+    this.name = name;
+    this.description = description;
+    this.worldId = worldId;
 }
 
 /**

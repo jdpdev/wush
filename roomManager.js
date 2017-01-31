@@ -31,6 +31,10 @@ RoomManager.prototype.initialize = function(universe, app, ensureAuthenticated, 
     app.post("/api/room/relocate", ensureAuthenticated, function(req, res) {
       self.relocateCharacter(req, res, db);
     });
+    
+    app.post("/api/room", ensureAuthenticated, function(req, res) {
+      self.sendCreateRoom(req, res, db);
+    });
 
     console.log("Loading rooms...");
 
@@ -65,6 +69,32 @@ RoomManager.prototype.sendRoomInfo = function(req, res, db) {
     .catch(function(error) {
         res.json({success: false, authenticated: true, error: error});
     });
+}
+
+RoomManager.prototype.sendCreateRoom = function(req, res, db) {
+    // Edit
+    if (req.body.id) {
+        this.editRoom(db, req.body.userId, req.body.id, req.body.name, req.body.description, req.body.worldId)
+            .then(function(info) {
+                res.json({success: true, authenticated: true});
+            })
+            .catch(function(error) {
+                console.error(error);
+                res.json({success: false, authenticated: true, error: error});
+            });
+    }
+
+    // Create
+    else {
+        this.createRoom(db, req.body.creator, req.body.name, req.body.description, req.body.worldId)
+            .then(function(info) {
+                res.json({success: true, authenticated: true, id: info});
+            })
+            .catch(function(error) {
+                console.error(error);
+                res.json({success: false, authenticated: true, error: error});
+            });
+    }
 }
 
 /**
@@ -152,6 +182,21 @@ RoomManager.prototype.loadAllRooms = function(db) {
     });
 }
 
+RoomManager.prototype.cacheRoom = function(id, name, description, world, creator) {
+    var room = new Room(
+            {
+                id: id,
+                name: name,
+                description: description,
+                worldId: world,
+                creator: creator,
+                createdTime: createdTime
+            }
+        );
+
+    self.roomCache[id] = room;
+}
+
 /**
  * Directly load a room from the cache
  * @param  {number} id The id of the room to load
@@ -165,17 +210,68 @@ RoomManager.prototype.loadCachedRoom = function(id) {
     }
 }
 
+RoomManager.prototype.createRoom = function(db, creator, name, description, worldid) {
+    var self = this;
+    
+    return new Promise(function(resolve, reject) {
+        // TODO Permissions
+    
+        var query = "INSERT INTO room SET ?";
+        var params = {creator: creator, name: name, description: description, world: worldid};
+        
+        db.query(query, params, function(err, result) {
+            if (err) {
+                reject(err);
+            } else {
+                self.cacheRoom(result.insertId, name, description, world, creator);
+                resolve(result.insertId);
+            }
+        });
+    });
+}
+
+RoomManager.prototype.editRoom = function(db, userId, id, name, description, worldid) {
+    var self = this;
+    
+    return new Promise(function(resolve, reject) {
+        var query = "UPDATE room SET ? where id = " + id;
+        var params = {name: name, description: description, world: worldid};
+
+        // TODO Permissions
+        var room = self.loadCachedRoom(id);
+
+        if (room.creator != userId) {
+            reject("You do not have permission to edit this room.");
+            return;
+        }
+
+        db.query(query, params, function(err, result) {
+            if (err) {
+                reject(err);
+            } else {
+                for (var roomId in self.roomCache) {
+                    if (roomId == id) {
+                        self.roomCache[roomId].update(name, description, worldid);
+                        resolve(true);
+                        return;
+                    }
+                }
+
+                reject("No room to update.");
+            }
+        });
+    });
+}
+
 /**
  * Returns a list of rooms in a world
  * @param  {number} worldId The id of the world
  * @return {Room[]}         The member rooms
  */
 RoomManager.prototype.getRoomsInWorld = function(worldId) {
-    console.log("getRoomsInWorld >> " + worldId);
     var rooms = [];
 
     for (var id in this.roomCache) {
-        console.log("getRoomsInWorld >> " + id);
         if (this.roomCache[id].worldId == worldId) {
             rooms.push(this.roomCache[id]);
         }

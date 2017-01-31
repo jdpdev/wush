@@ -46,6 +46,10 @@
   .clickable {
     cursor: pointer;
   }
+
+  .edit-btn {
+    cursor: pointer;
+  }
   
 </style>
 
@@ -70,6 +74,8 @@
         <h3 style="color: {{app.getContrastColor(room.world.color)}}">
           {{room.info.name}} 
           <small style="color: {{app.getContrastColor(room.world.color)}}">[{{room.world.name}}]</small>
+
+          <i class="edit-btn fa fa-edit pull-right" ng-show="room.isOwner()" ng-click="room.editRoom()"></i>
         </h3>
       </div>
     </div>

@@ -109,6 +109,15 @@ wushApp.controller("roomController", function($scope, $http, $route, $routeParam
     $scope.$on("$destroy", function() {
        self.leaveRoom();
     });
+
+    this.editRoom = function() {
+        $location.path("/room/" + $routeParams.id + "/edit");
+    }
+
+    this.isOwner = function(world) {
+        // TODO permissions
+        return getCurrentUser() != null && getCurrentUser().id == this.world.creator;
+    }
     
     this.enterRoom = function() {
         if ($scope.app.isSocketReady()) {

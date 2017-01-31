@@ -45,6 +45,10 @@ wushApp.controller("placeListController", function($scope, $http, $location, get
 
         $location.path("/world/" + world.id);
     }
+
+    this.editRoom = function(id) {
+        $location.path("/room/" + id + "/edit");   
+    }
     
     // Get dump of info about the character
     getServer("world/list", {}).then(

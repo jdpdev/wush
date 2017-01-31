@@ -5,14 +5,14 @@
     padding: 5px;
   }
   
-  .world i:nth-child(1) {
+  .worldBorder > i:nth-child(1) {
       position: absolute;
       top: 5px;
       right: 25px;
       cursor: pointer;
   }
   
-  .world i:nth-child(2) {
+  .worldBorder > i:nth-child(2) {
       position: absolute;
       top: 5px;
       right: 5px;
@@ -33,6 +33,12 @@
   
   .room {
     text-align: center;
+  }
+
+  .edit-btn {
+    cursor: pointer;
+    margin-right: 5px;
+    margin-top: 4px;
   }
 </style>
 
@@ -69,6 +75,7 @@
                       ng-click="places.jumpToRoom(room.id)">
                     
                         <a href="#/room/{{room.id}}">{{room.name}}</a>
+                        <i class="edit-btn fa fa-edit pull-right" ng-show="places.isWorldOwner(world)" ng-click="places.editRoom(room.id)"></i>
                     </div>
                 </div>
             </div>
