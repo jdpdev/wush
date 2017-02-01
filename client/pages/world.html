@@ -81,7 +81,11 @@
                 </div>
                 <div class="panel-body">
                     <div ng-repeat="room in world.rooms track by room.id">
-                        <b>{{room.name}}</b>
+                        <b><a href="#/room/{{room.id}}/edit">{{room.name}}</a></b>
+                    </div>
+
+                    <div>
+                        <b><a href="#/room/add/{{world.info.id}}"><i class="fa fa-plus"></i> Create Room</a></b>
                     </div>
                 </div>
             </div>

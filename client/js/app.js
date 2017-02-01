@@ -30,6 +30,12 @@ wushApp.config(function($routeProvider, $locationProvider) {
     })
 
     // route for the contact page
+    .when('/room/add/:worldId', {
+        templateUrl : 'pages/editRoom.html',
+        controller  : 'editRoomController as room'
+    })
+
+    // route for the contact page
     .when('/room/:id', {
         templateUrl : 'pages/room.html',
         controller  : 'roomController as room'
@@ -82,11 +88,13 @@ wushApp.run(function($rootScope, $location, $anchorScroll, $routeParams, getCurr
 
         if (getCurrentUser() == null) {
             switch (next.$$route.originalPath) {
+                case "/room/add":
                 case "/room/:id":
                 case "/room/:id/edit":
                 case "/character/:id":
                 case "/places/:id":
                 case "/places":
+                case "/world/:id":
                 case "/profile":
                     $location.path( "/home" );
                     break;

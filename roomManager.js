@@ -74,7 +74,7 @@ RoomManager.prototype.sendRoomInfo = function(req, res, db) {
 RoomManager.prototype.sendCreateRoom = function(req, res, db) {
     // Edit
     if (req.body.id) {
-        this.editRoom(db, req.body.userId, req.body.id, req.body.name, req.body.description, req.body.worldId)
+        this.editRoom(db, req.user.id, req.body.id, req.body.name, req.body.description, req.body.worldId)
             .then(function(info) {
                 res.json({success: true, authenticated: true});
             })
@@ -86,7 +86,7 @@ RoomManager.prototype.sendCreateRoom = function(req, res, db) {
 
     // Create
     else {
-        this.createRoom(db, req.body.creator, req.body.name, req.body.description, req.body.worldId)
+        this.createRoom(db, req.user.id, req.body.name, req.body.description, req.body.worldId)
             .then(function(info) {
                 res.json({success: true, authenticated: true, id: info});
             })
@@ -115,6 +115,8 @@ RoomManager.prototype.loadRoom = function(db, id) {
             //resolve({room: self.roomCache[id], world: });
             var room = self.roomCache[id];
             
+            console.log("loadRoom >> " + room.worldId);
+            console.log(room);
             resolve({room: room, world: self._worldManager.getWorld(room.worldId)});
             return;
         }    
@@ -182,19 +184,21 @@ RoomManager.prototype.loadAllRooms = function(db) {
     });
 }
 
-RoomManager.prototype.cacheRoom = function(id, name, description, world, creator) {
+RoomManager.prototype.cacheRoom = function(id, name, description, world, creator, createdTime) {
+    console.log("cacheRoom >> " + world);
     var room = new Room(
             {
                 id: id,
                 name: name,
                 description: description,
-                worldId: world,
+                world: world,
                 creator: creator,
                 createdTime: createdTime
             }
         );
 
-    self.roomCache[id] = room;
+    this.roomCache[id] = room;
+    console.log(this.roomCache[id]);
 }
 
 /**
@@ -212,7 +216,7 @@ RoomManager.prototype.loadCachedRoom = function(id) {
 
 RoomManager.prototype.createRoom = function(db, creator, name, description, worldid) {
     var self = this;
-    
+
     return new Promise(function(resolve, reject) {
         // TODO Permissions
     
@@ -223,7 +227,7 @@ RoomManager.prototype.createRoom = function(db, creator, name, description, worl
             if (err) {
                 reject(err);
             } else {
-                self.cacheRoom(result.insertId, name, description, world, creator);
+                self.cacheRoom(result.insertId, name, description, worldid, creator, "");
                 resolve(result.insertId);
             }
         });
@@ -232,7 +236,7 @@ RoomManager.prototype.createRoom = function(db, creator, name, description, worl
 
 RoomManager.prototype.editRoom = function(db, userId, id, name, description, worldid) {
     var self = this;
-    
+
     return new Promise(function(resolve, reject) {
         var query = "UPDATE room SET ? where id = " + id;
         var params = {name: name, description: description, world: worldid};
