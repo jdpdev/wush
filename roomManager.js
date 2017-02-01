@@ -1,3 +1,4 @@
+var escapeHtml = require('escape-html');
 var Room = require("./room");
 var Character = require("./character");
 var PoseManager = require("./poseManager");
@@ -216,7 +217,7 @@ RoomManager.prototype.createRoom = function(db, creator, name, description, worl
         // TODO Permissions
     
         var query = "INSERT INTO room SET ?";
-        var params = {creator: creator, name: name, description: description, world: worldid};
+        var params = {creator: creator, name: escapeHtml(name), description: escapeHtml(description), world: worldid};
         
         db.query(query, params, function(err, result) {
             if (err) {
@@ -234,12 +235,18 @@ RoomManager.prototype.editRoom = function(db, userId, id, name, description, wor
 
     return new Promise(function(resolve, reject) {
         var query = "UPDATE room SET ? where id = " + id;
-        var params = {name: name, description: description, world: worldid};
+        var params = {name: name, description: escapeHtml(description), world: worldid};
 
         // TODO Permissions
         var room = self.loadCachedRoom(id);
 
-        if (room.creator != userId) {
+        if (room == null) {
+            reject("Room does not exist!");
+            return;
+        }
+
+        if (room.room.creator != userId) {
+            console.error("User: " + userId + " can't edit room created by (" + room.creator +")");
             reject("You do not have permission to edit this room.");
             return;
         }

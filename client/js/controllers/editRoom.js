@@ -10,6 +10,7 @@ wushApp.controller("editRoomController", function($scope, $http, $route, $routeP
 
     this.pendingEdit = false;
     this.editError = null;
+    this.editSuccess = false;
     
     // Get the initial dump of room info
     // ...room info
@@ -63,6 +64,10 @@ wushApp.controller("editRoomController", function($scope, $http, $route, $routeP
             room.worldId = $routeParams.worldId;
         }
 
+        this.pendingEdit = true;
+        this.editSuccess = false;
+        this.editError = null;
+
         postServer("room", room).then(
             function(response) {
                 $scope.$apply(function() {
@@ -70,7 +75,9 @@ wushApp.controller("editRoomController", function($scope, $http, $route, $routeP
 
                     if (self.isEditing()) {
                         if (response.success) {
+                            self.info.name = room.name;
                             self.info.description = room.description;
+                            self.editSuccess = true;
                         } else {
                             self.editError = response.error;
                         }

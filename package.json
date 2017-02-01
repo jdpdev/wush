@@ -19,6 +19,7 @@
     "bcrypt": "^0.8.6",
     "connect-ensure-login": "~0.1.1",
     "crypto": "0.0.3",
+    "escape-html": "^1.0.3",
     "express": "~3.2.4",
     "express-cors": "0.0.3",
     "fs": "0.0.1-security",

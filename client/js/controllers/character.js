@@ -34,9 +34,11 @@ wushApp.controller("characterController", function($scope, $http, $route, $route
         
         postServer("character/description", {id: this.id, description: this.newDescription}).then(
             function (response) {
-                if (response.data.success) {
-                    self.info.description = self.newDescription;
-                    self.newDescription = "";
+                if (response.success) {
+                    $scope.$apply(function() {
+                        self.info.description = self.newDescription;
+                        self.newDescription = "";
+                    });
                 } else {
                     alert(response.error);
                 }

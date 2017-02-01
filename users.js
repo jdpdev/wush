@@ -1,3 +1,4 @@
+var escapeHtml = require('escape-html');
 var User = require("./user");
 
 var Users = function() {
@@ -30,7 +31,7 @@ Users.prototype.create = function(db, req, res) {
         }
         
         var query = "INSERT INTO users SET ?";
-        var inputs = {name: req.body.username, password: hash, email: req.body.email};
+        var inputs = {name: escapeHtml(req.body.username), password: hash, email: req.body.email};
         
         var request = db.query(query, inputs, function(err, rows, fields) {
             if (err) {
