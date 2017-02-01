@@ -8,6 +8,8 @@ wushApp.controller("roomController", function($scope, $http, $route, $routeParam
     this.world = {color: "#cccccc"};
     this.characters = [];
     this.poses = [];
+
+    this.expandDescription = false;
     
     // Characters in the room owned by the user
     this.playerCharacters = [];
@@ -109,6 +111,10 @@ wushApp.controller("roomController", function($scope, $http, $route, $routeParam
     $scope.$on("$destroy", function() {
        self.leaveRoom();
     });
+
+    this.toggleDescriptionExpand = function() {
+        this.expandDescription = !this.expandDescription;
+    }
 
     this.editRoom = function() {
         $location.path("/room/" + $routeParams.id + "/edit");

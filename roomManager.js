@@ -114,9 +114,6 @@ RoomManager.prototype.loadRoom = function(db, id) {
         if (self.roomCache[id] != undefined) {
             //resolve({room: self.roomCache[id], world: });
             var room = self.roomCache[id];
-            
-            console.log("loadRoom >> " + room.worldId);
-            console.log(room);
             resolve({room: room, world: self._worldManager.getWorld(room.worldId)});
             return;
         }    
@@ -185,7 +182,6 @@ RoomManager.prototype.loadAllRooms = function(db) {
 }
 
 RoomManager.prototype.cacheRoom = function(id, name, description, world, creator, createdTime) {
-    console.log("cacheRoom >> " + world);
     var room = new Room(
             {
                 id: id,
@@ -198,7 +194,6 @@ RoomManager.prototype.cacheRoom = function(id, name, description, world, creator
         );
 
     this.roomCache[id] = room;
-    console.log(this.roomCache[id]);
 }
 
 /**
