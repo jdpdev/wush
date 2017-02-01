@@ -96,7 +96,7 @@
 
                 <div class="form-group">
                     <div class="col-sm-offset-3 col-sm-4">
-                        <input type="submit" class="btn btn-primary" ng-disabled="room.pendingEdit" />
+                        <input type="submit" class="btn btn-primary" ng-disabled="room.pendingEdit" value="Submit Edit" />
                     </div>
                 </div>
 
@@ -104,6 +104,14 @@
                     <div class="col-sm-12">
                         <div class="alert alert-danger">
                             {{room.editError.error}}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group" ng-show="room.editSuccess">
+                  <div class="col-sm-12">
+                        <div class="alert alert-success">
+                            Room successfully edited.
                         </div>
                     </div>
                 </div>

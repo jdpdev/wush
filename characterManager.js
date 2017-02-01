@@ -51,7 +51,7 @@ CharacterManager.prototype.createCharacter = function(req, res, db) {
             res.json({success: false, authenticated: true, error: err});
         } else {
             var char = new Character(null);
-            char.createNew(result.insertId, req.body.name, req.body.owner);
+            char.createNew(result.insertId, escapeHtml(req.body.name), req.body.owner);
             self.updateCharacterInCache(char);
 
             res.json({success: true, authenticated: true, id: result.insertId, character: char});

@@ -1,3 +1,4 @@
+var escapeHtml = require('escape-html');
 var World = require("./world");
 
 function WorldManager() {
@@ -192,7 +193,7 @@ WorldManager.prototype.createWorld = function(db, creator, name, description, co
         // TODO Permissions
     
         var query = "INSERT INTO world SET ?";
-        var params = {creator: creator, name: name, description: description, color: color};
+        var params = {creator: creator, name: escapeHtml(name), description: escapeHtml(description), color: color};
         
         db.query(query, params, function(err, result) {
             console.log(query);
@@ -211,7 +212,7 @@ WorldManager.prototype.editWorld = function(db, userId, id, name, description, c
     
     return new Promise(function(resolve, reject) {
         var query = "UPDATE world SET ? where id = " + id;
-        var params = {name: name, description: description, color: color};
+        var params = {name: escapeHtml(name), description: escapeHtml(description), color: color};
 
         // TODO Permissions
         var world = self.getWorld(id);

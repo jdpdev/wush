@@ -1,3 +1,4 @@
+var escapeHtml = require('escape-html');
 var Pose = require("./pose");
 
 var _instance = null;
