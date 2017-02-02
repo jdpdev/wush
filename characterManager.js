@@ -1,3 +1,4 @@
+var escapeHtml = require('escape-html');
 var Character = require("./character");
 
 function CharacterManager() {
