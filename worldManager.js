@@ -117,7 +117,7 @@ WorldManager.prototype.sendCreateWorld = function(req, res, db) {
     if (req.body.id) {
         this.sendEditWorld(req, res, db);
     } else {
-        this.createWorld(db, req.body.creator, req.body.name, req.body.description, req.body.color)
+        this.createWorld(db, req.user.id, req.body.name, req.body.description, req.body.color)
             .then(function(id) {
                 res.json({success: true, authenticated: true, id: id});
             })
@@ -196,8 +196,8 @@ WorldManager.prototype.createWorld = function(db, creator, name, description, co
         var params = {creator: creator, name: escapeHtml(name), description: escapeHtml(description), color: color};
         
         db.query(query, params, function(err, result) {
-            console.log(query);
             if (err) {
+                console.error(err);
                 reject(err);
             } else {
                 self.cacheWorld(result.insertId, name, description, color);
@@ -224,6 +224,7 @@ WorldManager.prototype.editWorld = function(db, userId, id, name, description, c
 
         db.query(query, params, function(err, result) {
             if (err) {
+                console.error(err);
                 reject(err);
             } else {
                 for (var worldId in self.worldCache) {

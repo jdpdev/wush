@@ -10,7 +10,13 @@ wushApp.controller("placeListController", function($scope, $http, $location, get
         color: "#000000"
     };
 
+    this.createWorldError = null;
+    this.pendingCreate = false;
+
     this.createWorld = function() {
+        this.pendingCreate = true;
+        this.createWorldError = null;
+
         var params = {
             name: this.newWorld.name,
             description: this.newWorld.description,
@@ -19,11 +25,23 @@ wushApp.controller("placeListController", function($scope, $http, $location, get
 
         postServer("world", params).then(
             function(response) {
-
+                $scope.$apply(function() {
+                    if (response.success) {
+                        $location.path("/world/" + response.id);
+                    } else {
+                        self.pendingCreate = false;
+                        self.createWorldError = result.error;
+                        console.error(result);
+                    }
+                });
             },
 
             function(error) {
-                console.error(error);
+                $scope.$apply(function() {
+                    self.pendingCreate = false;
+                    self.createWorldError = error.error;
+                    console.error(error);
+                });
             }
         );
     }
