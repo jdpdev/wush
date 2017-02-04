@@ -1,6 +1,6 @@
 {
   "name": "WUSH",
-  "version": "0.3.0",
+  "version": "0.1.0-rc.1",
   "description": "A web-based MSUH-like environment.",
   "main": "server.js",
   "repository": {
